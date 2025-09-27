@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反诈信用体系 - 信用修复申请</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f6f9;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* 导航栏样式 */
+        nav {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        .nav-item.active a {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* 下拉菜单样式 */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            z-index: 1;
+            left: 0;
+            top: 100%;
+            margin-top: 5px;
+        }
+        
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-radius: 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #e8f4fd;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown:hover .dropbtn {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 主内容区样式 */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 22px;
+            color: #3498db;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f4fd;
+        }
+        
+        /* 表单样式 */
+        .form-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .form-title {
+            font-size: 18px;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        /* 数据表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 状态标签样式 */
+        .status-tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-processing {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* 统计图表样式 */
+        .stats-chart {
+            height: 300px;
+            background-color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e0e0e0;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div>
+                <h1 class="header-title">北京市反诈信用体系</h1>
+                <p class="header-subtitle">信用修复申请</p>
+            </div>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="数据采集与整合模块.html">数据采集与整合</a></li>
+                <li class="nav-item dropdown">
+                    <a href="用户画像与行为分析模块.html" class="dropbtn">用户画像与行为分析</a>
+                    <div class="dropdown-content">
+                        <a href="用户画像与行为分析模块.html">指标汇总页面</a>
+                        <a href="单用户画像查询页面.html">手机号码查询页面</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a href="欺诈风险评分引擎.html">欺诈风险评分引擎</a></li>
+                <li class="nav-item dropdown">
+                    <a href="信用评价汇总页面.html" class="dropbtn">信用评价与修复</a>
+                    <div class="dropdown-content">
+                        <a href="信用评价汇总页面.html">信用评价汇总</a>
+                        <a href="信用修复申请页面.html" class="active">信用修复申请</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- 信用修复申请 -->
+        <section class="section">
+            <h2 class="section-title">信用修复申请</h2>
+            
+            <div class="form-section">
+                <h3 class="form-title">发起信用修复申请</h3>
+                
+                <form id="repair-application-form">
+                    <div class="form-group">
+                        <label class="form-label">用户ID</label>
+                        <input type="text" class="form-input" placeholder="请输入用户ID" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">联系电话</label>
+                        <input type="tel" class="form-input" placeholder="请输入联系电话" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">当前信用等级</label>
+                        <select class="form-select" required>
+                            <option value="">请选择当前信用等级</option>
+                            <option value="A">A级</option>
+                            <option value="B">B级</option>
+                            <option value="C">C级</option>
+                            <option value="D">D级</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">修复原因</label>
+                        <textarea class="form-textarea" placeholder="请详细说明需要信用修复的原因..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">佐证材料上传</label>
+                        <input type="file" class="form-input" multiple>
+                        <p style="font-size: 12px; color: #666; margin-top: 5px;">支持上传图片、PDF等格式的佐证材料，单个文件不超过10MB</p>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button type="submit" class="btn btn-primary">提交申请</button>
+                        <button type="reset" class="btn btn-secondary" style="margin-left: 10px;">重置</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3 style="color: #3498db; margin-bottom: 15px;">信用修复流程</h3>
+                
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">
+                    <div style="flex: 1; min-width: 200px; background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #3498db; margin-bottom: 10px;">1</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 10px;">申请提交</div>
+                        <p style="font-size: 14px; color: #666;">用户提交信用修复申请及相关佐证材料</p>
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 200px; background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #3498db; margin-bottom: 10px;">2</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 10px;">材料审核</div>
+                        <p style="font-size: 14px; color: #666;">系统和人工审核申请材料的真实性和完整性</p>
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 200px; background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #3498db; margin-bottom: 10px;">3</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 10px;">修复方案制定</div>
+                        <p style="font-size: 14px; color: #666;">根据用户情况制定个性化的信用修复方案</p>
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 200px; background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #3498db; margin-bottom: 10px;">4</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 10px;">修复实施</div>
+                        <p style="font-size: 14px; color: #666;">用户按照修复方案完成相关要求和任务</p>
+                    </div>
+                    
+                    <div style="flex: 1; min-width: 200px; background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 36px; font-weight: bold; color: #3498db; margin-bottom: 10px;">5</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 10px;">结果评估</div>
+                        <p style="font-size: 14px; color: #666;">评估修复效果，更新用户信用等级和分数</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 修复结果更新与反馈 -->
+        <section class="section">
+            <h2 class="section-title">修复结果查询与反馈</h2>
+            
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #3498db; margin-bottom: 15px;">修复申请状态查询</h3>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" class="form-input" placeholder="请输入申请编号" style="flex: 1; max-width: 400px;">
+                    <button class="btn btn-primary">查询</button>
+                </div>
+                
+                <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px;">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">申请状态示例</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>申请编号</th>
+                                <th>申请时间</th>
+                                <th>当前状态</th>
+                                <th>预计完成时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>REP20231201001</td>
+                                <td>2023-12-01 10:30</td>
+                                <td><span class="status-tag status-approved">已通过</span></td>
+                                <td>2023-12-08 16:45</td>
+                                <td><button class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">查看详情</button></td>
+                            </tr>
+                            <tr>
+                                <td>REP20231205002</td>
+                                <td>2023-12-05 14:20</td>
+                                <td><span class="status-tag status-processing">处理中</span></td>
+                                <td>2023-12-12 14:20</td>
+                                <td><button class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">查看详情</button></td>
+                            </tr>
+                            <tr>
+                                <td>REP20231210003</td>
+                                <td>2023-12-10 09:15</td>
+                                <td><span class="status-tag status-pending">待审核</span></td>
+                                <td>2023-12-17 09:15</td>
+                                <td><button class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">查看详情</button></td>
+                            </tr>
+                            <tr>
+                                <td>REP20231128004</td>
+                                <td>2023-11-28 16:40</td>
+                                <td><span class="status-tag status-rejected">未通过</span></td>
+                                <td>-</td>
+                                <td><button class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">查看详情</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div>
+                <!-- 信用修复效果统计已移至信用评价汇总页面 -->
+            </div>
+        </section>
+    </div>
+</body>
+</html>

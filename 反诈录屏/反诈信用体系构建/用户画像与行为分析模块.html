@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反诈信用体系 - 用户画像与行为分析模块</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f6f9;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* 导航栏样式 */
+        nav {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        .nav-item.active a {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* 下拉菜单样式 */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            z-index: 1;
+            left: 0;
+            top: 100%;
+            margin-top: 5px;
+        }
+        
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-radius: 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #e8f4fd;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown:hover .dropbtn {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 主内容区样式 */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 22px;
+            color: #3498db;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f4fd;
+        }
+        
+        /* 卡片网格布局 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #3498db;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        /* 数据表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 画像维度样式 */
+        .profile-dimensions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .dimension-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e8f4fd;
+        }
+        
+        .dimension-title {
+            font-size: 18px;
+            color: #3498db;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e8f4fd;
+        }
+        
+        .dimension-item {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dimension-label {
+            color: #666;
+        }
+        
+        .dimension-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* 时间分布图表样式 */
+        .time-distribution {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .time-chart {
+            display: grid;
+            grid-template-columns: repeat(24, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+            align-items: end;
+            height: 200px;
+        }
+        
+        .time-bar {
+            background-color: #3498db;
+            border-radius: 4px 4px 0 0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .time-bar:hover {
+            background-color: #2980b9;
+        }
+        
+        .time-label {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* 地理位置分布样式 */
+        .geo-distribution {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .geo-map {
+            height: 300px;
+            background-color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+        
+        .geo-legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .geo-legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        /* 风险标签样式 */
+        .risk-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .risk-tag {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .risk-high {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .risk-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .risk-low {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-dimensions {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div>
+                <h1 class="header-title">北京市反诈信用体系</h1>
+                <p class="header-subtitle">用户画像与行为分析模块</p>
+            </div>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="数据采集与整合模块.html">数据采集与整合</a></li>
+                <li class="nav-item dropdown active">
+                    <a href="#" class="dropbtn">用户画像与行为分析</a>
+                    <div class="dropdown-content">
+                        <a href="#">指标汇总页面</a>
+                        <a href="单用户画像查询页面.html">手机号码查询页面</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a href="欺诈风险评分引擎.html">欺诈风险评分引擎</a></li>
+                <li class="nav-item dropdown">
+                    <a href="信用评价汇总页面.html" class="dropbtn">信用评价与修复</a>
+                    <div class="dropdown-content">
+                        <a href="信用评价汇总页面.html">信用评价汇总</a>
+                        <a href="信用修复申请页面.html">信用修复申请</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- 模块概览 -->
+        <section class="section">
+            <h2 class="section-title">模块概览</h2>
+            <p>本模块展示包括人员属性、设备信息、通信行为等维度的用户基础画像，结合时间分布、地理位置等用户行为画像，支持基于规则或模型的异常行为检测与风险标签标记。</p>
+            
+            <div style="text-align: right; margin-bottom: 20px;">
+                <a href="单用户画像查询页面.html" class="btn btn-primary">
+                    用户画像查看
+                </a>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">1200万+</div>
+                    <div style="font-size: 14px; color: #666;">用户画像数量</div>
+                </div>
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">50+</div>
+                    <div style="font-size: 14px; color: #666;">画像维度</div>
+                </div>
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">24小时</div>
+                    <div style="font-size: 14px; color: #666;">实时更新</div>
+                </div>
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">98.5%</div>
+                    <div style="font-size: 14px; color: #666;">异常检测准确率</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 用户基础画像 -->
+        <section class="section">
+            <h2 class="section-title">用户基础画像</h2>
+            
+            <div class="profile-dimensions">
+                <!-- 人员属性 -->
+                <div class="dimension-card">
+                    <h3 class="dimension-title">人员属性</h3>
+                    <div class="dimension-item">
+                        <span class="dimension-label">性别分布</span>
+                        <span class="dimension-value">男62% / 女38%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">年龄分布</span>
+                        <span class="dimension-value">18-45岁占75%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">职业分布</span>
+                        <span class="dimension-value">白领45% / 学生25%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">收入水平</span>
+                        <span class="dimension-value">5k-20k占65%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">教育程度</span>
+                        <span class="dimension-value">本科及以上55%</span>
+                    </div>
+                </div>
+                
+                <!-- 设备信息 -->
+                <div class="dimension-card">
+                    <h3 class="dimension-title">设备信息</h3>
+                    <div class="dimension-item">
+                        <span class="dimension-label">设备类型</span>
+                        <span class="dimension-value">智能手机92%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">操作系统</span>
+                        <span class="dimension-value">Android 65% / iOS 35%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">设备品牌</span>
+                        <span class="dimension-value">华为32% / 小米28%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">设备更换频率</span>
+                        <span class="dimension-value">1-2年占60%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">SIM卡数量</span>
+                        <span class="dimension-value">单卡72% / 双卡28%</span>
+                    </div>
+                </div>
+                
+                <!-- 通信行为 -->
+                <div class="dimension-card">
+                    <h3 class="dimension-title">通信行为</h3>
+                    <div class="dimension-item">
+                        <span class="dimension-label">日均通话时长</span>
+                        <span class="dimension-value">15-60分钟占65%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">日均短信数量</span>
+                        <span class="dimension-value">5-20条占70%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">常用联系人数量</span>
+                        <span class="dimension-value">10-50人占75%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">长途通话占比</span>
+                        <span class="dimension-value">低于20%占85%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">国际通话</span>
+                        <span class="dimension-value">几乎没有占95%</span>
+                    </div>
+                </div>
+                
+                <!-- 消费行为 -->
+                <div class="dimension-card">
+                    <h3 class="dimension-title">消费行为</h3>
+                    <div class="dimension-item">
+                        <span class="dimension-label">月均话费</span>
+                        <span class="dimension-value">100-300元占65%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">流量使用</span>
+                        <span class="dimension-value">10-50GB占70%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">支付方式</span>
+                        <span class="dimension-value">移动支付占95%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">消费频率</span>
+                        <span class="dimension-value">每周3-5次占60%</span>
+                    </div>
+                    <div class="dimension-item">
+                        <span class="dimension-label">漫游消费</span>
+                        <span class="dimension-value">极少占85%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 用户行为画像 -->
+        <section class="section">
+            <h2 class="section-title">用户行为画像</h2>
+            
+            <!-- 时间分布 -->
+            <div class="time-distribution">
+                <h3 style="color: #3498db; margin-bottom: 15px;">通信行为时间分布</h3>
+                <p style="color: #666; margin-bottom: 10px;">北京市用户24小时通信活跃度统计（基于2023年12月数据）</p>
+                <div class="time-chart">
+                    <div class="time-bar" style="height: 20%;"><div class="time-label">0</div></div>
+                    <div class="time-bar" style="height: 15%;"><div class="time-label">1</div></div>
+                    <div class="time-bar" style="height: 10%;"><div class="time-label">2</div></div>
+                    <div class="time-bar" style="height: 8%;"><div class="time-label">3</div></div>
+                    <div class="time-bar" style="height: 7%;"><div class="time-label">4</div></div>
+                    <div class="time-bar" style="height: 15%;"><div class="time-label">5</div></div>
+                    <div class="time-bar" style="height: 30%;"><div class="time-label">6</div></div>
+                    <div class="time-bar" style="height: 60%;"><div class="time-label">7</div></div>
+                    <div class="time-bar" style="height: 75%;"><div class="time-label">8</div></div>
+                    <div class="time-bar" style="height: 45%;"><div class="time-label">9</div></div>
+                    <div class="time-bar" style="height: 40%;"><div class="time-label">10</div></div>
+                    <div class="time-bar" style="height: 42%;"><div class="time-label">11</div></div>
+                    <div class="time-bar" style="height: 65%;"><div class="time-label">12</div></div>
+                    <div class="time-bar" style="height: 48%;"><div class="time-label">13</div></div>
+                    <div class="time-bar" style="height: 43%;"><div class="time-label">14</div></div>
+                    <div class="time-bar" style="height: 45%;"><div class="time-label">15</div></div>
+                    <div class="time-bar" style="height: 47%;"><div class="time-label">16</div></div>
+                    <div class="time-bar" style="height: 55%;"><div class="time-label">17</div></div>
+                    <div class="time-bar" style="height: 85%;"><div class="time-label">18</div></div>
+                    <div class="time-bar" style="height: 70%;"><div class="time-label">19</div></div>
+                    <div class="time-bar" style="height: 60%;"><div class="time-label">20</div></div>
+                    <div class="time-bar" style="height: 50%;"><div class="time-label">21</div></div>
+                    <div class="time-bar" style="height: 40%;"><div class="time-label">22</div></div>
+                    <div class="time-bar" style="height: 25%;"><div class="time-label">23</div></div>
+                </div>
+            </div>
+            
+            <!-- 地理位置分布 -->
+            <div class="geo-distribution">
+                <h3 style="color: #3498db; margin-bottom: 15px;">用户地理位置分布</h3>
+                <p style="color: #666; margin-bottom: 10px;">北京市各区域用户密度及风险分布数据</p>
+                
+                <!-- 区域数据统计 -->
+                <div style="width: 100%;">
+                    <h4 style="color: #3498db; margin-bottom: 15px;">区域风险统计</h4>
+                    <div style="overflow-x: auto; width: 100%;">
+                        <style>
+                            .risk-statistics-table th, .risk-statistics-table td {
+                                text-align: center;
+                            }
+                        </style>
+                        <table class="data-table risk-statistics-table" style="font-size: 11px; min-width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>区域</th>
+                                    <th>用户数量</th>
+                                    <th>用户密度</th>
+                                    <th>风险等级</th>
+                                    <th>诈骗案件数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>朝阳区</td>
+                                    <td>280万</td>
+                                    <td>极高</td>
+                                    <td>中</td>
+                                    <td>245</td>
+                                </tr>
+                                <tr>
+                                    <td>海淀区</td>
+                                    <td>240万</td>
+                                    <td>高</td>
+                                    <td>中</td>
+                                    <td>198</td>
+                                </tr>
+                                <tr>
+                                    <td>东城区</td>
+                                    <td>85万</td>
+                                    <td>高</td>
+                                    <td>高</td>
+                                    <td>120</td>
+                                </tr>
+                                <tr>
+                                    <td>西城区</td>
+                                    <td>92万</td>
+                                    <td>高</td>
+                                    <td>高</td>
+                                    <td>115</td>
+                                </tr>
+                                <tr>
+                                    <td>丰台区</td>
+                                    <td>150万</td>
+                                    <td>中</td>
+                                    <td>低</td>
+                                    <td>98</td>
+                                </tr>
+                                <tr>
+                                    <td>通州区</td>
+                                    <td>120万</td>
+                                    <td>中</td>
+                                    <td>低</td>
+                                    <td>76</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 应用使用行为 -->
+            <div style="margin: 20px 0;">
+                <h3 style="color: #3498db; margin-bottom: 15px;">应用使用行为分析</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>应用类别</th>
+                            <th>使用率</th>
+                            <th>日均使用时长</th>
+                            <th>异常使用特征</th>
+                            <th>风险关联度</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>社交应用</td>
+                            <td>98%</td>
+                            <td>3-5小时</td>
+                            <td>夜间频繁聊天、陌生群组加入</td>
+                            <td>高</td>
+                        </tr>
+                        <tr>
+                            <td>金融支付</td>
+                            <td>92%</td>
+                            <td>30-60分钟</td>
+                            <td>异地转账、频繁更换支付方式</td>
+                            <td>极高</td>
+                        </tr>
+                        <tr>
+                            <td>购物应用</td>
+                            <td>85%</td>
+                            <td>1-2小时</td>
+                            <td>异常大额订单、虚假收货地址</td>
+                            <td>中</td>
+                        </tr>
+                        <tr>
+                            <td>游戏应用</td>
+                            <td>65%</td>
+                            <td>2-4小时</td>
+                            <td>异常充值、账号共享</td>
+                            <td>中</td>
+                        </tr>
+                        <tr>
+                            <td>工具应用</td>
+                            <td>90%</td>
+                            <td>15-30分钟</td>
+                            <td>权限滥用、数据窃取风险</td>
+                            <td>中高</td>
+                        </tr>
+                        <tr>
+                            <td>影音娱乐</td>
+                            <td>88%</td>
+                            <td>2-3小时</td>
+                            <td>盗版内容访问、恶意广告点击</td>
+                            <td>低</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- 异常行为检测与风险标签 -->
+        <section class="section">
+            <h2 class="section-title">异常行为检测与风险标签</h2>
+            
+            <!-- 异常检测规则 -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #3498db; margin-bottom: 15px;">异常行为检测规则</h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4 class="card-title">通信异常规则</h4>
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            <li style="margin-bottom: 8px;">• 短时间内与多个陌生号码通话</li>
+                            <li style="margin-bottom: 8px;">• 夜间频繁国际长途通话</li>
+                            <li style="margin-bottom: 8px;">• 通话时长异常短促（小于10秒）</li>
+                            <li style="margin-bottom: 8px;">• 短信发送量激增（日发送&gt;100条）</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4 class="card-title">消费异常规则</h4>
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            <li style="margin-bottom: 8px;">• 异地大额消费（非常用地点）</li>
+                            <li style="margin-bottom: 8px;">• 短时间内多次小额转账</li>
+                            <li style="margin-bottom: 8px;">• 消费习惯突然改变</li>
+                            <li style="margin-bottom: 8px;">• 凌晨时段异常交易</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4 class="card-title">设备异常规则</h4>
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            <li style="margin-bottom: 8px;">• 短时间内更换多个SIM卡</li>
+                            <li style="margin-bottom: 8px;">• 设备root/越狱状态</li>
+                            <li style="margin-bottom: 8px;">• 安装恶意应用或插件</li>
+                            <li style="margin-bottom: 8px;">• 异常位置切换（短时间多地点）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 风险标签示例 -->
+            <div>
+                <h3 style="color: #3498db; margin-bottom: 15px;">风险标签标记</h3>
+                <p style="margin-bottom: 15px;">基于用户行为分析生成的风险标签示例：</p>
+                
+                <div class="risk-tags">
+                    <span class="risk-tag risk-high">高风险通话行为</span>
+                    <span class="risk-tag risk-high">异常转账模式</span>
+                    <span class="risk-tag risk-high">国际诈骗电话接触</span>
+                    <span class="risk-tag risk-high">高风险应用安装</span>
+                    <span class="risk-tag risk-medium">夜间异常活动</span>
+                    <span class="risk-tag risk-medium">设备异常更换</span>
+                    <span class="risk-tag risk-medium">多SIM卡频繁切换</span>
+                    <span class="risk-tag risk-medium">异地登录行为</span>
+                    <span class="risk-tag risk-low">新用户风险观察</span>
+                    <span class="risk-tag risk-low">支付行为波动</span>
+                    <span class="risk-tag risk-low">轻度异常通信</span>
+                </div>
+                
+                <p style="margin-top: 20px; color: #666;">风险标签生成基于多维度行为分析，包括：实时规则引擎、机器学习模型、历史行为对比、群体行为分析等多种方法，确保标签的准确性和实时性。</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

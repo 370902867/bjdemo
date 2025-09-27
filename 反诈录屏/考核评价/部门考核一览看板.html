@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北京市考核评价 - 部门考核一览看板</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --text-color: #333;
+            --light-text: #666;
+            --border-color: #e0e0e0;
+            --bg-color: #f5f7fa;
+            --white: #ffffff;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 20px 0;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* 导航栏样式 */
+        nav {
+            background-color: var(--white);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 2px;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-item a {
+            display: block;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .nav-item a:hover,
+        .nav-item a.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        /* 内容容器样式 */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* 章节样式 */
+        .section {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f4fd;
+        }
+
+        /* 数据卡片网格样式 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e8f4fd;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--light-text);
+        }
+
+        /* 综合排名卡片样式 */
+        .ranking-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .ranking-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e8f4fd;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ranking-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--primary-color);
+            width: 60px;
+            height: 60px;
+            background-color: #e8f4fd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ranking-content {
+            flex: 1;
+        }
+
+        .ranking-dept {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .ranking-score {
+            font-size: 14px;
+            color: var(--light-text);
+            margin-bottom: 5px;
+        }
+
+        /* 图表样式 */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .chart-wrapper {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e8f4fd;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart-container {
+            height: 300px;
+        }
+
+        /* 表格样式 */
+        .data-table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* 状态标签样式 */
+        .status-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-tag.good {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-tag.warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .status-tag.danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* 评分等级样式 */
+        .rating-level {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .rating-level.a {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        .rating-level.b {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+        }
+
+        .rating-level.c {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .rating-level.d {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        /* 部门类别标签样式 */
+        .dept-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            background-color: #f8f9fa;
+            color: var(--light-text);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .ranking-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div>
+                <h1 class="header-title">北京市考核评价管理系统</h1>
+                <p class="header-subtitle">部门考核一览看板</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="分部门考核评价看板.html">分部门考核评价看板</a></li>
+                <li class="nav-item"><a href="进度预警考核.html">进度预警考核</a></li>
+                <li class="nav-item"><a href="部门考核一览看板.html" class="active">部门考核一览看板</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 考核概览 -->
+        <section class="section">
+            <h2 class="section-title">考核总览</h2>
+            <p>本模块展示北京市各部门考核的总体情况、综合排名和关键指标对比。</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">参与考核部门</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">85.3</div>
+                    <div class="stat-label">平均考核得分</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">A级部门</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">B/C/D级部门</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 部门综合排名 -->
+        <section class="section">
+            <h2 class="section-title">部门综合排名 (Top 10)</h2>
+            
+            <div class="ranking-cards">
+                <!-- 朝阳区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">1</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">朝阳区</div>
+                        <div class="ranking-score">综合得分: 96.5分 <span class="rating-level a">A级</span></div>
+                        <div class="dept-type">核心城区</div>
+                    </div>
+                </div>
+                
+                <!-- 海淀区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">2</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">海淀区</div>
+                        <div class="ranking-score">综合得分: 94.2分 <span class="rating-level a">A级</span></div>
+                        <div class="dept-type">核心城区</div>
+                    </div>
+                </div>
+                
+                <!-- 西城区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">3</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">西城区</div>
+                        <div class="ranking-score">综合得分: 92.8分 <span class="rating-level a">A级</span></div>
+                        <div class="dept-type">核心城区</div>
+                    </div>
+                </div>
+                
+                <!-- 东城区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">4</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">东城区</div>
+                        <div class="ranking-score">综合得分: 86.7分 <span class="rating-level b">B级</span></div>
+                        <div class="dept-type">核心城区</div>
+                    </div>
+                </div>
+                
+                <!-- 丰台区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">5</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">丰台区</div>
+                        <div class="ranking-score">综合得分: 78.3分 <span class="rating-level c">C级</span></div>
+                        <div class="dept-type">近郊区</div>
+                    </div>
+                </div>
+                
+                <!-- 石景山区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">6</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">石景山区</div>
+                        <div class="ranking-score">综合得分: 75.6分 <span class="rating-level c">C级</span></div>
+                        <div class="dept-type">近郊区</div>
+                    </div>
+                </div>
+                
+                <!-- 通州区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">7</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">通州区</div>
+                        <div class="ranking-score">综合得分: 75.5分 <span class="rating-level c">C级</span></div>
+                        <div class="dept-type">城市副中心</div>
+                    </div>
+                </div>
+                
+                <!-- 顺义区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">8</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">顺义区</div>
+                        <div class="ranking-score">综合得分: 73.0分 <span class="rating-level d">D级</span></div>
+                        <div class="dept-type">远郊区</div>
+                    </div>
+                </div>
+                
+                <!-- 大兴区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">9</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">大兴区</div>
+                        <div class="ranking-score">综合得分: 72.3分 <span class="rating-level d">D级</span></div>
+                        <div class="dept-type">远郊区</div>
+                    </div>
+                </div>
+                
+                <!-- 昌平区 -->
+                <div class="ranking-card">
+                    <div class="ranking-number">10</div>
+                    <div class="ranking-content">
+                        <div class="ranking-dept">昌平区</div>
+                        <div class="ranking-score">综合得分: 72.0分 <span class="rating-level d">D级</span></div>
+                        <div class="dept-type">远郊区</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 考核分析图表 -->
+        <section class="section">
+            <h2 class="section-title">考核数据分析</h2>
+            
+            <div class="charts-container">
+                <!-- 部门得分分布 -->
+                <div class="chart-wrapper">
+                    <div class="chart-title">部门得分分布</div>
+                    <div class="chart-container">
+                        <canvas id="scoreDistributionChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 部门类别对比 -->
+                <div class="chart-wrapper">
+                    <div class="chart-title">不同区域类别部门得分对比</div>
+                    <div class="chart-container">
+                        <canvas id="regionTypeChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 关键指标雷达图 -->
+                <div class="chart-wrapper">
+                    <div class="chart-title">TOP3部门关键指标雷达图</div>
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 年度趋势图 -->
+                <div class="chart-wrapper">
+                    <div class="chart-title">年度平均得分趋势</div>
+                    <div class="chart-container">
+                        <canvas id="annualTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 部门考核详细数据 -->
+        <section class="section">
+            <h2 class="section-title">部门考核详细数据</h2>
+            
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>部门</th>
+                            <th>区域类别</th>
+                            <th>综合得分</th>
+                            <th>评分等级</th>
+                            <th>服务质量</th>
+                            <th>工作效率</th>
+                            <th>客户满意度</th>
+                            <th>完成进度</th>
+                            <th>较上月变化</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>朝阳区</td>
+                            <td>核心城区</td>
+                            <td>96.5</td>
+                            <td><span class="rating-level a">A级</span></td>
+                            <td>97.2</td>
+                            <td>95.8</td>
+                            <td>98.3</td>
+                            <td>96.5%</td>
+                            <td>+2.3</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>海淀区</td>
+                            <td>核心城区</td>
+                            <td>94.2</td>
+                            <td><span class="rating-level a">A级</span></td>
+                            <td>95.1</td>
+                            <td>94.6</td>
+                            <td>96.8</td>
+                            <td>94.2%</td>
+                            <td>+1.8</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>西城区</td>
+                            <td>核心城区</td>
+                            <td>92.8</td>
+                            <td><span class="rating-level a">A级</span></td>
+                            <td>93.5</td>
+                            <td>92.3</td>
+                            <td>95.2</td>
+                            <td>92.8%</td>
+                            <td>+0.9</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>东城区</td>
+                            <td>核心城区</td>
+                            <td>86.7</td>
+                            <td><span class="rating-level b">B级</span></td>
+                            <td>87.2</td>
+                            <td>86.5</td>
+                            <td>88.3</td>
+                            <td>86.7%</td>
+                            <td>+0.5</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>丰台区</td>
+                            <td>近郊区</td>
+                            <td>78.3</td>
+                            <td><span class="rating-level c">C级</span></td>
+                            <td>79.1</td>
+                            <td>77.8</td>
+                            <td>79.6</td>
+                            <td>78.3%</td>
+                            <td>-1.2</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>石景山区</td>
+                            <td>近郊区</td>
+                            <td>75.6</td>
+                            <td><span class="rating-level c">C级</span></td>
+                            <td>76.3</td>
+                            <td>75.1</td>
+                            <td>77.2</td>
+                            <td>75.6%</td>
+                            <td>-2.1</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>通州区</td>
+                            <td>城市副中心</td>
+                            <td>75.5</td>
+                            <td><span class="rating-level c">C级</span></td>
+                            <td>76.2</td>
+                            <td>74.8</td>
+                            <td>77.1</td>
+                            <td>75.5%</td>
+                            <td>+0.3</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>顺义区</td>
+                            <td>远郊区</td>
+                            <td>73.0</td>
+                            <td><span class="rating-level d">D级</span></td>
+                            <td>74.1</td>
+                            <td>72.5</td>
+                            <td>75.3</td>
+                            <td>73.0%</td>
+                            <td>+1.5</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>大兴区</td>
+                            <td>远郊区</td>
+                            <td>72.3</td>
+                            <td><span class="rating-level d">D级</span></td>
+                            <td>73.5</td>
+                            <td>71.8</td>
+                            <td>74.6</td>
+                            <td>72.3%</td>
+                            <td>-0.8</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>昌平区</td>
+                            <td>远郊区</td>
+                            <td>72.0</td>
+                            <td><span class="rating-level d">D级</span></td>
+                            <td>73.2</td>
+                            <td>71.5</td>
+                            <td>74.3</td>
+                            <td>72.0%</td>
+                            <td>+0.6</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>房山区</td>
+                            <td>远郊区</td>
+                            <td>70.5</td>
+                            <td><span class="rating-level d">D级</span></td>
+                            <td>71.8</td>
+                            <td>70.1</td>
+                            <td>72.9</td>
+                            <td>70.5%</td>
+                            <td>+1.2</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>怀柔区</td>
+                            <td>远郊区</td>
+                            <td>70.0</td>
+                            <td><span class="rating-level d">D级</span></td>
+                            <td>71.3</td>
+                            <td>69.7</td>
+                            <td>72.5</td>
+                            <td>70.0%</td>
+                            <td>+0.2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 部门得分分布图
+            const scoreDistributionCtx = document.getElementById('scoreDistributionChart').getContext('2d');
+            const scoreDistributionChart = new Chart(scoreDistributionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['70-75', '75-80', '80-85', '85-90', '90-95', '95-100'],
+                    datasets: [
+                        {
+                            label: '部门数量',
+                            data: [5, 2, 0, 1, 3, 1],
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 区域类别对比图
+            const regionTypeCtx = document.getElementById('regionTypeChart').getContext('2d');
+            const regionTypeChart = new Chart(regionTypeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['核心城区', '近郊区', '城市副中心', '远郊区'],
+                    datasets: [
+                        {
+                            label: '平均得分',
+                            data: [92.55, 76.95, 75.5, 71.56],
+                            backgroundColor: [
+                                'rgba(52, 152, 219, 0.7)',
+                                'rgba(46, 204, 113, 0.7)',
+                                'rgba(155, 89, 182, 0.7)',
+                                'rgba(243, 156, 18, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(52, 152, 219, 1)',
+                                'rgba(46, 204, 113, 1)',
+                                'rgba(155, 89, 182, 1)',
+                                'rgba(243, 156, 18, 1)'
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // 雷达图
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            const radarChart = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['服务质量', '工作效率', '客户满意度', '完成进度', '创新能力'],
+                    datasets: [
+                        {
+                            label: '朝阳区',
+                            data: [97.2, 95.8, 98.3, 96.5, 94.2],
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(52, 152, 219, 1)'
+                        },
+                        {
+                            label: '海淀区',
+                            data: [95.1, 94.6, 96.8, 94.2, 93.5],
+                            backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            pointBackgroundColor: 'rgba(46, 204, 113, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(46, 204, 113, 1)'
+                        },
+                        {
+                            label: '西城区',
+                            data: [93.5, 92.3, 95.2, 92.8, 91.7],
+                            backgroundColor: 'rgba(155, 89, 182, 0.2)',
+                            borderColor: 'rgba(155, 89, 182, 1)',
+                            pointBackgroundColor: 'rgba(155, 89, 182, 1)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgba(155, 89, 182, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 70,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+
+            // 年度趋势图
+            const annualTrendCtx = document.getElementById('annualTrendChart').getContext('2d');
+            const annualTrendChart = new Chart(annualTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                    datasets: [
+                        {
+                            label: '平均得分',
+                            data: [78.5, 79.2, 80.1, 81.3, 82.1, 83.4, 84.2, 84.8, 85.1, 85.3, 85.2, 85.3],
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 75,
+                            max: 90
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

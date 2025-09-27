@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反诈信用体系 - 信用评价汇总</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f6f9;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* 导航栏样式 */
+        nav {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        .nav-item.active a {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* 下拉菜单样式 */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            z-index: 1;
+            left: 0;
+            top: 100%;
+            margin-top: 5px;
+        }
+        
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-radius: 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #e8f4fd;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown:hover .dropbtn {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 主内容区样式 */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 22px;
+            color: #3498db;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f4fd;
+        }
+        
+        /* 卡片网格布局 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        /* 信用等级卡片样式 */
+        .level-card {
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .level-card.level-a {
+            background-color: #d4edda;
+            border: 2px solid #28a745;
+        }
+        
+        .level-card.level-b {
+            background-color: #d1ecf1;
+            border: 2px solid #17a2b8;
+        }
+        
+        .level-card.level-c {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+        
+        .level-card.level-d {
+            background-color: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+        
+        .level-name {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .level-score {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .level-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* 信用特权样式 */
+        .privilege-list {
+            margin: 20px 0;
+        }
+        
+        .privilege-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .privilege-icon {
+            color: #3498db;
+            font-size: 20px;
+            margin-right: 10px;
+            margin-top: 2px;
+        }
+        
+        .privilege-content {
+            flex: 1;
+        }
+        
+        .privilege-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        /* 数据表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table th {
+            background-color: #f8f9fa;
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div>
+                <h1 class="header-title">北京市反诈信用体系</h1>
+                <p class="header-subtitle">信用评价汇总</p>
+            </div>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="数据采集与整合模块.html">数据采集与整合</a></li>
+                <li class="nav-item dropdown">
+                    <a href="用户画像与行为分析模块.html" class="dropbtn">用户画像与行为分析</a>
+                    <div class="dropdown-content">
+                        <a href="用户画像与行为分析模块.html">指标汇总页面</a>
+                        <a href="单用户画像查询页面.html">手机号码查询页面</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a href="欺诈风险评分引擎.html">欺诈风险评分引擎</a></li>
+                <li class="nav-item dropdown">
+                    <a href="信用评价汇总页面.html" class="dropbtn active">信用评价与修复</a>
+                    <div class="dropdown-content">
+                        <a href="信用评价汇总页面.html" class="active">信用评价汇总</a>
+                        <a href="信用修复申请页面.html">信用修复申请</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- 模块概览 -->
+        <section class="section">
+            <h2 class="section-title">模块概览</h2>
+            <p>本模块展示信用评分标准，划分A/B/C/D等级体系，支持用户了解信用评价机制和等级特权。</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">4</div>
+                    <div style="font-size: 14px; color: #666;">信用等级</div>
+                </div>
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">85%</div>
+                    <div style="font-size: 14px; color: #666;">A级用户占比</div>
+                </div>
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">90%</div>
+                    <div style="font-size: 14px; color: #666;">修复成功率</div>
+                </div>
+                <div style="background-color: white; border-radius: 8px; padding: 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e8f4fd;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">7天</div>
+                    <div style="font-size: 14px; color: #666;">平均修复周期</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 信用修复效果统计 -->
+        <section class="section">
+            <h2 class="section-title">信用修复效果统计</h2>
+            
+            <!-- 引入Chart.js -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            
+            <div class="stats-chart" style="height: 300px; margin: 20px 0;">
+                <canvas id="repairTrendChart"></canvas>
+            </div>
+            
+            <script>
+                // 初始化图表
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ctx = document.getElementById('repairTrendChart').getContext('2d');
+                    
+                    // 模拟数据 - 近6个月信用修复申请数量和成功率
+                    const months = ['2023-07', '2023-08', '2023-09', '2023-10', '2023-11', '2023-12'];
+                    const applicationCount = [1856, 1789, 2045, 2123, 1987, 2210];
+                    const successRate = [88.5, 89.2, 90.1, 89.7, 90.5, 91.2];
+                    
+                    const repairTrendChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: months,
+                            datasets: [
+                                {
+                                    label: '申请数量',
+                                    data: applicationCount,
+                                    backgroundColor: '#3498db',
+                                    borderColor: '#2980b9',
+                                    borderWidth: 1,
+                                    order: 2,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: '成功率(%)',
+                                    data: successRate,
+                                    type: 'line',
+                                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                    borderColor: '#e74c3c',
+                                    borderWidth: 2,
+                                    tension: 0.3,
+                                    order: 1,
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: '申请数量'
+                                    },
+                                    position: 'left'
+                                },
+                                y1: {
+                                    beginAtZero: false,
+                                    min: 85,
+                                    max: 95,
+                                    title: {
+                                        display: true,
+                                        text: '成功率(%)'
+                                    },
+                                    position: 'right',
+                                    grid: {
+                                        drawOnChartArea: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: '北京市用户信用修复效果趋势图',
+                                    font: {
+                                        size: 16
+                                    }
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false
+                                }
+                            }
+                        }
+                    });
+                });
+            </script>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">12,583</div>
+                    <div style="font-size: 14px; color: #666;">年度修复申请总量</div>
+                </div>
+                
+                <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">90.2%</div>
+                    <div style="font-size: 14px; color: #666;">修复申请通过率</div>
+                </div>
+                
+                <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">7.3天</div>
+                    <div style="font-size: 14px; color: #666;">平均修复周期</div>
+                </div>
+                
+                <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; text-align: center;">
+                    <div style="font-size: 32px; font-weight: bold; color: #3498db; margin-bottom: 10px;">42.5%</div>
+                    <div style="font-size: 14px; color: #666;">成功提升等级比例</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 信用评分标准 -->
+        <section class="section">
+            <h2 class="section-title">信用评分标准</h2>
+            
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #3498db; margin-bottom: 15px;">评分维度及权重</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>评分维度</th>
+                            <th>权重占比</th>
+                            <th>评分项</th>
+                            <th>评分方法</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>基础信用</td>
+                            <td>30%</td>
+                            <td>实名认证、账户稳定性、使用时长</td>
+                            <td>基于客观数据统计</td>
+                        </tr>
+                        <tr>
+                            <td>行为规范</td>
+                            <td>25%</td>
+                            <td>合规使用、异常行为记录、风险事件</td>
+                            <td>规则引擎+机器学习模型</td>
+                        </tr>
+                        <tr>
+                            <td>安全意识</td>
+                            <td>20%</td>
+                            <td>反诈知识掌握、安全设置启用、风险防范行为</td>
+                            <td>问卷调查+行为分析</td>
+                        </tr>
+                        <tr>
+                            <td>信用历史</td>
+                            <td>15%</td>
+                            <td>历史信用记录、修复记录、违规记录</td>
+                            <td>时间衰减加权计算</td>
+                        </tr>
+                        <tr>
+                            <td>社会关系</td>
+                            <td>10%</td>
+                            <td>联系人信用状况、社交网络安全性</td>
+                            <td>图计算算法分析</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div>
+                <h3 style="color: #3498db; margin-bottom: 15px;">信用评分计算方法</h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4 class="card-title">多维度加权</h4>
+                        <p>基于各维度的重要性分配不同权重，综合计算用户的信用得分。权重定期根据风险形势和业务需求进行调整和优化。</p>
+                    </div>
+                    <div class="card">
+                        <h4 class="card-title">实时动态更新</h4>
+                        <p>用户信用分数实时更新，确保评分结果能够及时反映用户最新的行为和风险状况，支持实时风险防控决策。</p>
+                    </div>
+                    <div class="card">
+                        <h4 class="card-title">时间衰减机制</h4>
+                        <p>采用时间衰减算法，近期行为对信用评分的影响更大，历史行为影响逐渐降低，鼓励用户持续保持良好信用。</p>
+                    </div>
+                    <div class="card">
+                        <h4 class="card-title">异常行为扣减</h4>
+                        <p>针对各类异常行为和风险事件设置不同程度的扣分标准，确保评分结果能够准确反映用户的风险状况。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 信用等级体系 -->
+        <section class="section">
+            <h2 class="section-title">A/B/C/D等级体系</h2>
+            
+            <div class="card-grid">
+                <!-- A级 -->
+                <div class="level-card level-a">
+                    <div class="level-name">A级</div>
+                    <div class="level-score">评分范围：90-100分</div>
+                    <div class="level-desc">
+                        <p>优秀信用用户，具备良好的安全意识和行为习惯，无任何风险记录。</p>
+                        <p>占比约45%的用户属于此等级。</p>
+                    </div>
+                </div>
+                
+                <!-- B级 -->
+                <div class="level-card level-b">
+                    <div class="level-name">B级</div>
+                    <div class="level-score">评分范围：75-89分</div>
+                    <div class="level-desc">
+                        <p>良好信用用户，信用记录良好，偶有轻微异常行为但无风险事件。</p>
+                        <p>占比约40%的用户属于此等级。</p>
+                    </div>
+                </div>
+                
+                <!-- C级 -->
+                <div class="level-card level-c">
+                    <div class="level-name">C级</div>
+                    <div class="level-score">评分范围：60-74分</div>
+                    <div class="level-desc">
+                        <p>一般信用用户，存在一定的风险行为或异常记录，需要加强风险防范意识。</p>
+                        <p>占比约10%的用户属于此等级。</p>
+                    </div>
+                </div>
+                
+                <!-- D级 -->
+                <div class="level-card level-d">
+                    <div class="level-name">D级</div>
+                    <div class="level-score">评分范围：0-59分</div>
+                    <div class="level-desc">
+                        <p>高风险信用用户，存在多次异常行为或涉诈风险记录，需要重点监控和干预。</p>
+                        <p>占比约5%的用户属于此等级。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3 style="color: #3498db; margin-bottom: 15px;">信用等级特权与限制</h3>
+                
+                <div class="card-grid">
+                    <div class="card">
+                        <h4 class="card-title">A级用户特权</h4>
+                        <div class="privilege-list">
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">优先接入服务</div>
+                                    <p style="font-size: 14px; color: #666;">优先获得最新的反诈服务和功能</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">专属客服通道</div>
+                                    <p style="font-size: 14px; color: #666;">享受7×24小时专属客服支持</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">风险保障计划</div>
+                                    <p style="font-size: 14px; color: #666;">优先获得反诈保险和风险保障</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4 class="card-title">B级用户特权</h4>
+                        <div class="privilege-list">
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">标准服务保障</div>
+                                    <p style="font-size: 14px; color: #666;">享受全部标准反诈服务功能</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">定期安全提醒</div>
+                                    <p style="font-size: 14px; color: #666;">定期收到个性化安全提醒和建议</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">信用提升指导</div>
+                                    <p style="font-size: 14px; color: #666;">获得个性化的信用提升建议和指导</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4 class="card-title">C级用户管理</h4>
+                        <div class="privilege-list">
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">基础服务访问</div>
+                                    <p style="font-size: 14px; color: #666;">限制部分高级服务功能的访问</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">增强监控</div>
+                                    <p style="font-size: 14px; color: #666;">加强账户和行为的监控力度</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">强制教育</div>
+                                    <p style="font-size: 14px; color: #666;">需要完成定期的反诈知识学习</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h4 class="card-title">D级用户限制</h4>
+                        <div class="privilege-list">
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">严格限制服务</div>
+                                    <p style="font-size: 14px; color: #666;">严格限制账户功能和交易权限</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">高频监控</div>
+                                    <p style="font-size: 14px; color: #666;">实施高频度的账户和行为监控</p>
+                                </div>
+                            </div>
+                            <div class="privilege-item">
+                                <div class="privilege-icon">•</div>
+                                <div class="privilege-content">
+                                    <div class="privilege-title">强制修复</div>
+                                    <p style="font-size: 14px; color: #666;">必须完成信用修复计划才能恢复服务</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标列查询 - 服务质量通报系统</title>
+    
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"></script>
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3498db',
+                        secondary: '#2ecc71',
+                        danger: '#e74c3c',
+                        warning: '#f39c12',
+                        info: '#1abc9c',
+                        success: '#27ae60',
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+            }
+            .shadow-hover {
+                transition: box-shadow 0.3s ease;
+            }
+            .shadow-hover:hover {
+                box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+            }
+            .transition-smooth {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+    
+    <!-- 基础样式 -->
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* 网格布局和响应式样式 */
+        .grid {
+            display: grid;
+        }
+        
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        .md\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .md\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        
+        .lg\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        
+        .gap-4 {
+            gap: 1rem;
+        }
+        
+        .gap-6 {
+            gap: 1.5rem;
+        }
+        
+        .gap-8 {
+            gap: 2rem;
+        }
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Tailwind 基础类补充 */
+        .grid {
+            display: grid;
+        }
+        
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        .lg\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .gap-6 {
+            gap: 1.5rem;
+        }
+        
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .items-start {
+            align-items: flex-start;
+        }
+        
+        .space-x-2 {
+            gap: 0.5rem;
+        }
+        
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        
+        .text-lg {
+            font-size: 1.125rem;
+        }
+        
+        .font-bold {
+            font-weight: 700;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .bg-primary\/10 {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .text-primary {
+            color: #3498db;
+        }
+        
+        .text-gray-600 {
+            color: #6b7280;
+        }
+        
+        .hover\:bg-gray-100:hover {
+            background-color: #f3f4f6;
+        }
+        
+        /* 自定义样式补充 */
+        .shadow-soft {
+            box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .shadow-hover {
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .shadow-hover:hover {
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .transition-smooth {
+            transition: all 0.3s ease;
+        }
+        
+        .text-gray-500 {
+            color: #9ca3af;
+        }
+        
+        .text-red-600 {
+            color: #dc2626;
+        }
+        
+        .text-green-600 {
+            color: #16a34a;
+        }
+        
+        .text-xs {
+            font-size: 0.75rem;
+        }
+        
+        .mr-1 {
+            margin-right: 0.25rem;
+        }
+        
+        .ml-2 {
+            margin-left: 0.5rem;
+        }
+        
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+        
+        .min-w-full {
+            min-width: 100%;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        .border-b {
+            border-bottom-width: 1px;
+            border-bottom-color: #e5e7eb;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .py-3 {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        
+        .divide-y {
+            border-top-width: 1px;
+        }
+        
+        .divide-gray-200 {
+            border-color: #e5e7eb;
+        }
+        
+        .hover\:bg-gray-50:hover {
+            background-color: #f9fafb;
+        }
+        
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+        
+        .p-6 {
+            padding: 1.5rem;
+        }
+        
+        .rounded {
+            border-radius: 0.375rem;
+        }
+        
+        .bg-white {
+            background-color: white;
+        }
+        
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .text-base {
+            font-size: 1rem;
+        }
+        
+        .mb-3 {
+            margin-bottom: 0.75rem;
+        }
+        
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        
+        .gap-4 {
+            gap: 1rem;
+        }
+        
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+        
+        .justify-end {
+            justify-content: flex-end;
+        }
+        
+        .border {
+            border-width: 1px;
+            border-color: #e5e7eb;
+        }
+        
+        .border-gray-300 {
+            border-color: #d1d5db;
+        }
+        
+        .rounded-md {
+            border-radius: 0.375rem;
+        }
+        
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+        
+        .hover\:bg-gray-100:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .bg-gray-100 {
+            background-color: #f3f4f6;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f6f9;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: white;
+            padding: 16px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        /* 主要内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        /* 按钮样式 */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* 自定义工具类 */
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .space-x-2 {
+            gap: 8px;
+        }
+        
+        .py-4 {
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .px-4 {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .bg-primary {
+            background-color: #3498db;
+        }
+        
+        .text-white {
+            color: white;
+        }
+        
+        .rounded {
+            border-radius: 4px;
+        }
+        
+        /* 按钮样式 */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 表单样式 */
+        input, select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* 分页样式 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        
+        .pagination li a {
+            padding: 8px 12px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: #333;
+        }
+        
+        .pagination li a:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .pagination li.active a {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+    
+    <!-- 自定义图表绘制函数 -->
+    <script>
+        // 自定义简单图表绘制函数
+        function drawSimpleChart(canvasId, type, data) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 获取数据
+            const labels = data.labels || [];
+            const datasets = data.datasets || [];
+            
+            if (labels.length === 0 || datasets.length === 0) return;
+            
+            // 绘制折线图
+            if (type === 'line') {
+                drawLineChart(ctx, canvas, labels, datasets);
+            }
+            // 绘制环形图
+            else if (type === 'doughnut') {
+                drawDoughnutChart(ctx, canvas, labels, datasets);
+            }
+        }
+        
+        // 绘制折线图
+        function drawLineChart(ctx, canvas, labels, datasets) {
+            // 图表边距
+            const margin = {
+                top: 30,
+                right: 30,
+                bottom: 40,
+                left: 40
+            };
+            
+            const chartWidth = canvas.width - margin.left - margin.right;
+            const chartHeight = canvas.height - margin.top - margin.bottom;
+            
+            // 找出数据的最大最小值
+            let minValue = Infinity;
+            let maxValue = -Infinity;
+            
+            datasets.forEach(dataset => {
+                dataset.data.forEach(value => {
+                    if (value < minValue) minValue = value;
+                    if (value > maxValue) maxValue = value;
+                });
+            });
+            
+            // 添加一些缓冲
+            const buffer = (maxValue - minValue) * 0.1;
+            minValue -= buffer;
+            maxValue += buffer;
+            
+            // 计算刻度间隔
+            const xScale = chartWidth / (labels.length - 1);
+            const yScale = chartHeight / (maxValue - minValue);
+            
+            // 绘制网格线
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            
+            // 垂直网格线
+            labels.forEach((label, index) => {
+                const x = margin.left + index * xScale;
+                ctx.beginPath();
+                ctx.moveTo(x, margin.top);
+                ctx.lineTo(x, canvas.height - margin.bottom);
+                ctx.stroke();
+            });
+            
+            // 水平网格线（5条）
+            for (let i = 0; i <= 5; i++) {
+                const y = canvas.height - margin.bottom - (chartHeight * i / 5);
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(canvas.width - margin.right, y);
+                ctx.stroke();
+            }
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 2;
+            
+            // X轴
+            ctx.beginPath();
+            ctx.moveTo(margin.left, canvas.height - margin.bottom);
+            ctx.lineTo(canvas.width - margin.right, canvas.height - margin.bottom);
+            ctx.stroke();
+            
+            // Y轴
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, canvas.height - margin.bottom);
+            ctx.stroke();
+            
+            // 绘制折线
+            datasets.forEach(dataset => {
+                ctx.strokeStyle = dataset.borderColor || '#3498db';
+                ctx.lineWidth = dataset.borderWidth || 2;
+                ctx.beginPath();
+                
+                // 虚线样式
+                if (dataset.borderDash) {
+                    ctx.setLineDash(dataset.borderDash);
+                } else {
+                    ctx.setLineDash([]);
+                }
+                
+                dataset.data.forEach((value, index) => {
+                    const x = margin.left + index * xScale;
+                    const y = canvas.height - margin.bottom - ((value - minValue) * yScale);
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    // 绘制点
+                    if (dataset.pointRadius !== 0) {
+                        ctx.fillStyle = dataset.borderColor || '#3498db';
+                        ctx.beginPath();
+                        ctx.arc(x, y, dataset.pointRadius || 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                
+                ctx.stroke();
+            });
+            
+            // 绘制标签
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            // X轴标签
+            labels.forEach((label, index) => {
+                const x = margin.left + index * xScale;
+                ctx.fillText(label, x, canvas.height - margin.bottom + 20);
+            });
+            
+            // Y轴标签（每10%）
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const value = minValue + ((maxValue - minValue) * i / 5);
+                const y = canvas.height - margin.bottom - (chartHeight * i / 5);
+                ctx.fillText(value.toFixed(1), margin.left - 10, y + 4);
+            }
+            
+            // 绘制图例
+            drawLegend(ctx, canvas, datasets, margin);
+        }
+        
+        // 绘制环形图
+        function drawDoughnutChart(ctx, canvas, labels, datasets) {
+            if (datasets.length === 0) return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) / 3;
+            const holeRadius = radius * 0.5;
+            
+            const dataset = datasets[0];
+            const data = dataset.data;
+            
+            // 计算总和
+            const total = data.reduce((sum, value) => sum + value, 0);
+            
+            let currentAngle = -Math.PI / 2; // 从顶部开始
+            
+            data.forEach((value, index) => {
+                const sliceAngle = (value / total) * 2 * Math.PI;
+                const endAngle = currentAngle + sliceAngle;
+                const color = dataset.backgroundColor[index] || `hsl(${(index * 60) % 360}, 70%, 60%)`;
+                
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, currentAngle, endAngle);
+                ctx.arc(centerX, centerY, holeRadius, endAngle, currentAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                // 绘制边框
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 更新角度
+                currentAngle = endAngle;
+            });
+            
+            // 绘制图例
+            drawLegend(ctx, canvas, datasets, { top: 10, right: 10, bottom: 10, left: 10 });
+        }
+        
+        // 绘制图例
+        function drawLegend(ctx, canvas, datasets, margin) {
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            
+            let legendY = margin.top;
+            let legendX = margin.left;
+            
+            datasets.forEach(dataset => {
+                const color = dataset.borderColor || dataset.backgroundColor[0] || '#3498db';
+                
+                // 绘制颜色方块
+                ctx.fillStyle = color;
+                ctx.fillRect(legendX, legendY, 12, 12);
+                
+                // 绘制标签
+                ctx.fillStyle = '#374151';
+                ctx.textAlign = 'left';
+                ctx.fillText(dataset.label, legendX + 20, legendY + 8);
+                
+                legendX += 100;
+            });
+        }
+    </script>
+    
+    <style>
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .space-x-2 {
+            gap: 8px;
+        }
+        
+        .py-4 {
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .px-4 {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .bg-primary {
+            background-color: #3498db;
+        }
+        
+        .text-white {
+            color: white;
+        }
+        
+        .rounded {
+            border-radius: 4px;
+        }
+    </style>
+    
+    <!-- 简单的Chart.js替代实现 -->
+    <script>
+        // 简单图表绘制函数
+        function drawSimpleChart(canvasId, type, data, options) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, width, height);
+            
+            if (type === 'line') {
+                // 简化的折线图实现
+                // 计算整体数据范围
+                let minValue = Infinity;
+                let maxValue = -Infinity;
+                
+                data.datasets.forEach(dataset => {
+                    minValue = Math.min(minValue, ...dataset.data);
+                    maxValue = Math.max(maxValue, ...dataset.data);
+                });
+                
+                const range = maxValue - minValue;
+                
+                // 绘制网格线
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 1;
+                
+                // 绘制水平线
+                for (let i = 0; i <= 5; i++) {
+                    const y = height - (i * height / 5);
+                    ctx.beginPath();
+                    ctx.moveTo(40, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                
+                // 绘制每个数据集
+                data.datasets.forEach((dataset, datasetIndex) => {
+                    ctx.strokeStyle = dataset.borderColor || '#3498db';
+                    ctx.lineWidth = 2;
+                    
+                    // 处理虚线
+                    if (dataset.borderDash) {
+                        ctx.setLineDash(dataset.borderDash);
+                    } else {
+                        ctx.setLineDash([]);
+                    }
+                    
+                    ctx.beginPath();
+                    dataset.data.forEach((value, index) => {
+                        const x = 40 + (index * (width - 40) / (data.labels.length - 1));
+                        const y = height - ((value - minValue) * height / range);
+                        
+                        if (index === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    });
+                    ctx.stroke();
+                    
+                    // 绘制数据点
+                    if (dataset.pointRadius !== 0) {
+                        ctx.fillStyle = dataset.borderColor || '#3498db';
+                        ctx.setLineDash([]); // 重置虚线
+                        
+                        dataset.data.forEach((value, index) => {
+                            const x = 40 + (index * (width - 40) / (data.labels.length - 1));
+                            const y = height - ((value - minValue) * height / range);
+                            
+                            ctx.beginPath();
+                            ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                            ctx.fill();
+                        });
+                    }
+                });
+                
+                // 绘制标签
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                
+                data.labels.forEach((label, index) => {
+                    const x = 40 + (index * (width - 40) / (data.labels.length - 1));
+                    const y = height + 15;
+                    ctx.fillText(label, x, y);
+                });
+                
+                // 绘制图例
+                const legendY = 10;
+                let legendX = 40;
+                
+                data.datasets.forEach((dataset, index) => {
+                    const color = dataset.borderColor || '#3498db';
+                    
+                    // 绘制颜色线条
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(legendX, legendY + 5);
+                    ctx.lineTo(legendX + 15, legendY + 5);
+                    ctx.stroke();
+                    
+                    // 绘制标签
+                    ctx.fillStyle = '#333';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(dataset.label, legendX + 20, legendY + 8);
+                    
+                    legendX += 100;
+                });
+            }
+        }
+    </script>
+    
+    <script>
+        // 模拟Tailwind配置对象以避免错误
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3498db',
+                        secondary: '#2980b9',
+                        accent: '#1abc9c',
+                        neutral: '#f5f7fa',
+                        dark: '#2c3e50'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        };
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+            }
+            .transition-smooth {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-primary text-white h-10 w-10 rounded flex items-center justify-center">
+                        <i class="fa fa-bar-chart text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-primary">北京市移动服务质量通报系统</h1>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="index.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">首页概览</a>
+                    <a href="indicator_list.html" class="font-medium text-primary border-b-2 border-primary pb-1">指标列查询</a>
+                    <a href="indicator_map.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">指标地图</a>
+                    <a href="indicator_favorite.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">我的指标</a>
+                    <a href="indicator_alert.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">指标预警</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索指标..." class="pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <div class="flex items-center space-x-2 cursor-pointer hover:text-primary transition-smooth">
+                        <i class="fa fa-bell-o text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <span class="hidden md:inline text-sm font-medium">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 移动端导航菜单 -->
+    <div class="md:hidden bg-white border-t border-gray-200 sticky top-[69px] z-40">
+        <div class="flex justify-between overflow-x-auto px-4 py-2 no-scrollbar">
+            <a href="index.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">首页概览</a>
+            <a href="indicator_list.html" class="whitespace-nowrap px-2 py-1 text-primary border-b-2 border-primary">指标列查询</a>
+            <a href="indicator_map.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">指标地图</a>
+            <a href="indicator_favorite.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">我的指标</a>
+            <a href="indicator_alert.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">指标预警</a>
+        </div>
+    </div>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 页面标题和描述 -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold mb-2">指标列查询</h2>
+            <p class="text-gray-600">查询和分析各类服务质量指标，支持按区域、周期等条件筛选</p>
+        </div>
+
+        <!-- 查询条件区域 -->
+        <div class="bg-white rounded-lg shadow-soft p-6 mb-6">
+            <h3 class="text-lg font-bold mb-4">查询条件</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">指标分类</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="all">全部分类</option>
+                        <option value="network">网络指标</option>
+                        <option value="service">服务指标</option>
+                        <option value="business">业务指标</option>
+                        <option value="satisfaction">客户满意度</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">区域选择</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="all">全部区域</option>
+                        <option value="haidian">海淀区</option>
+                        <option value="chaoyang">朝阳区</option>
+                        <option value="xicheng">西城区</option>
+                        <option value="dongcheng">东城区</option>
+                        <option value="fengtai">丰台区</option>
+                        <option value="shijingshan">石景山区</option>
+                        <option value="tongzhou">通州区</option>
+                        <option value="changping">昌平区</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">时间周期</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="week">近一周</option>
+                        <option value="month">近一月</option>
+                        <option value="quarter">近一季度</option>
+                        <option value="half_year">近半年</option>
+                        <option value="year">近一年</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">指标状态</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="all">全部状态</option>
+                        <option value="normal">正常</option>
+                        <option value="warning">预警</option>
+                        <option value="alert">告警</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">环比比较</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="all">全部</option>
+                        <option value="up">环比上升</option>
+                        <option value="down">环比下降</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">同比比较</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="all">全部</option>
+                        <option value="up">同比上升</option>
+                        <option value="down">同比下降</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <div class="flex space-x-3 w-full">
+                        <button class="flex-1 bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-secondary transition-smooth flex items-center justify-center">
+                            <i class="fa fa-search mr-2"></i> 查询
+                        </button>
+                        <button class="flex-1 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-smooth flex items-center justify-center">
+                            <i class="fa fa-refresh mr-2"></i> 重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 指标列表和图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="lg:col-span-2">
+                <!-- 指标列表 -->
+                <div class="bg-white rounded-lg shadow-soft p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">指标列表</h3>
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm text-gray-600">每页显示:</label>
+                                <select class="border border-gray-300 rounded text-sm p-1">
+                                    <option>10</option>
+                                    <option>20</option>
+                                    <option>50</option>
+                                    <option>100</option>
+                                </select>
+                            </div>
+                            <div class="flex space-x-1">
+                                <button class="p-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50"><i class="fa fa-download"></i></button>
+                                <button class="p-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50"><i class="fa fa-print"></i></button>
+                                <button class="p-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50"><i class="fa fa-table"></i></button>
+                                <button class="p-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50"><i class="fa fa-th-large"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                    <th class="px-4 py-3">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary/50">
+                                        </div>
+                                    </th>
+                                    <th class="px-4 py-3">指标名称</th>
+                                    <th class="px-4 py-3">指标值</th>
+                                    <th class="px-4 py-3">环比</th>
+                                    <th class="px-4 py-3">同比</th>
+                                    <th class="px-4 py-3">区域</th>
+                                    <th class="px-4 py-3">状态</th>
+                                    <th class="px-4 py-3">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition-smooth">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary/50">
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="bg-primary/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                                <i class="fa fa-signal text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">网络延迟率</p>
+                                                <p class="text-xs text-gray-500">网络质量</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="font-medium">12.5ms</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-red-600 font-medium">+5.3%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-red-600 font-medium">+8.1%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">海淀区</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">预警</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-secondary transition-smooth"><i class="fa fa-bar-chart"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-star-o"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-eye"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-ellipsis-v"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-smooth">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary/50">
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="bg-accent/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                                <i class="fa fa-phone text-accent"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">呼叫接通率</p>
+                                                <p class="text-xs text-gray-500">服务质量</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="font-medium">97.8%</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-green-600 font-medium">+2.1%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-green-600 font-medium">+3.5%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">朝阳区</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">正常</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-secondary transition-smooth"><i class="fa fa-bar-chart"></i></button>
+                                            <button class="text-yellow-500 hover:text-yellow-600 transition-smooth"><i class="fa fa-star"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-eye"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-ellipsis-v"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-smooth">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary/50">
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="bg-purple-100 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                                <i class="fa fa-wifi text-purple-600"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">数据传输速率</p>
+                                                <p class="text-xs text-gray-500">网络质量</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="font-medium">85.3Mbps</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-red-600 font-medium">-4.2%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-green-600 font-medium">+12.8%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">西城区</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">正常</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-secondary transition-smooth"><i class="fa fa-bar-chart"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-star-o"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-eye"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-ellipsis-v"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-smooth">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary/50">
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="bg-red-100 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                                <i class="fa fa-smile-o text-red-600"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">客户满意度</p>
+                                                <p class="text-xs text-gray-500">客户体验</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="font-medium">92.7%</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-green-600 font-medium">+1.5%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-green-600 font-medium">+5.3%</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">东城区</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">正常</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-secondary transition-smooth"><i class="fa fa-bar-chart"></i></button>
+                                            <button class="text-yellow-500 hover:text-yellow-600 transition-smooth"><i class="fa fa-star"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-eye"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-ellipsis-v"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-smooth">
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary/50">
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="bg-orange-100 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                                <i class="fa fa-clock-o text-orange-600"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium">投诉处理时长</p>
+                                                <p class="text-xs text-gray-500">服务质量</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="font-medium">4.3小时</div>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-red-600 font-medium">+0.8小时</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="text-red-600 font-medium">+1.2小时</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">丰台区</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">告警</span>
+                                    </td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="flex space-x-2">
+                                            <button class="text-primary hover:text-secondary transition-smooth"><i class="fa fa-bar-chart"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-star-o"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-eye"></i></button>
+                                            <button class="text-gray-600 hover:text-primary transition-smooth"><i class="fa fa-ellipsis-v"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页控件 -->
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="text-sm text-gray-600">
+                            显示 1-5 条，共 126 条
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-1 border border-primary bg-primary text-white rounded">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50">...</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50">26</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-gray-600 hover:bg-gray-50">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 指标详情和趋势图 -->
+            <div class="space-y-6">
+                <!-- 指标详情卡片 -->
+                <div class="bg-white rounded-lg shadow-soft p-6">
+                    <h3 class="text-lg font-bold mb-4">选中指标详情</h3>
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="bg-primary/10 rounded-full h-12 w-12 flex items-center justify-center">
+                            <i class="fa fa-signal text-primary text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold">网络延迟率</h4>
+                            <p class="text-gray-600">网络质量指标</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">当前值</p>
+                                <p class="text-2xl font-bold">12.5ms</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">目标值</p>
+                                <p class="text-2xl font-bold">≤10ms</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">环比</p>
+                                <p class="text-2xl font-bold text-red-600">+5.3%</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-500">同比</p>
+                                <p class="text-2xl font-bold text-red-600">+8.1%</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-sm text-gray-500">指标说明</p>
+                            <p class="text-gray-700 mt-1">衡量网络数据传输延迟的关键指标，反映网络响应速度。延迟越小，网络性能越好。</p>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button class="flex-1 bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-secondary transition-smooth flex items-center justify-center">
+                                <i class="fa fa-star mr-2"></i> 收藏指标
+                            </button>
+                            <button class="flex-1 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-smooth flex items-center justify-center">
+                                <i class="fa fa-bell mr-2"></i> 设置预警
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 指标趋势图 -->
+
+            </div>
+        </div>
+        <div class="mb-6 bg-white">
+
+            <div class="bg-white rounded-lg shadow-soft p-6 mb-6">
+                <h3 class="text-lg font-bold mb-4">指标趋势</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 text-sm rounded bg-primary/10 text-primary font-medium">日</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">周</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">月</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">季</button>
+                    </div>
+                    <button class="text-gray-600 hover:text-primary transition-smooth">
+                        <i class="fa fa-download"></i>
+                    </button>
+                </div>
+                <div id="indicatorTrendChart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 确保页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置画布尺寸
+            const trendCanvas = document.getElementById('indicatorTrendChart');
+            
+            if (trendCanvas) {
+                trendCanvas.width = 500;
+                trendCanvas.height = 300;
+            }
+            
+            // 指标趋势图数据
+            const trendData = {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                datasets: [{
+                    label: '网络延迟率',
+                    data: [10.2, 9.8, 11.5, 14.3, 13.1, 12.5],
+                    borderColor: '#3498db',
+                    tension: 0.3
+                },
+                {
+                    label: '目标值',
+                    data: [10, 10, 10, 10, 10, 10],
+                    borderColor: '#e74c3c',
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    tension: 0
+                }
+                ]
+            };
+            
+            // 绘制趋势图
+            if (trendCanvas) {
+                // drawSimpleChart('indicatorTrendChart', 'line', trendData);
+            }
+            const trendChart = echarts.init(document.getElementById('indicatorTrendChart'));
+
+            // 指标趋势图配置
+            const trendOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}<br/>{a0}: {c0}ms<br/>{a1}: {c1}ms'
+                },
+                legend: {
+                    data: ['网络延迟率', '目标值'],
+                    right: 10,
+                    top: 0
+                },
+                grid: {
+                    left: '3%',
+                    top: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    // containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '延迟(ms)',
+                    axisLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '网络延迟率',
+                        type: 'line',
+                        data: [10.2, 9.8, 11.5, 14.3, 13.1, 12.5],
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#3498db'
+                        },
+                        lineStyle: {
+                            width: 3
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0,
+                                    color: 'rgba(52, 152, 219, 0.3)'
+                                }, {
+                                    offset: 1,
+                                    color: 'rgba(52, 152, 219, 0.1)'
+                                }]
+                            }
+                        }
+                    },
+                    {
+                        name: '目标值',
+                        type: 'line',
+                        data: [10, 10, 10, 10, 10, 10],
+                        symbol: 'none',
+                        lineStyle: {
+                            color: '#e74c3c',
+                            width: 2,
+                            type: 'dashed'
+                        }
+                    }
+                ]
+            };
+
+            // 应用配置
+            trendChart.setOption(trendOption);
+            // 模拟表格行点击事件
+            const tableRows = document.querySelectorAll('table tr:not(:first-child)');
+            tableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    // 移除其他行的选中状态
+                    tableRows.forEach(r => r.style.backgroundColor = '');
+                    // 设置当前行的选中状态
+                    this.style.backgroundColor = '#e8f4fd';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

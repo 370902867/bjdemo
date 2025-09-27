@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标地图 - 服务质量通报系统</title>
+    
+    <!-- 引入外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"></script>
+    <script src="./beijing.js"></script>
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3498db',
+                        secondary: '#2ecc71',
+                        danger: '#e74c3c',
+                        warning: '#f39c12',
+                        info: '#1abc9c',
+                        success: '#27ae60',
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+            }
+            .shadow-hover {
+                transition: box-shadow 0.3s ease;
+            }
+            .shadow-hover:hover {
+                box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+            }
+            .transition-smooth {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+    
+    <!-- 基础样式 -->
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* 网格布局和响应式样式 */
+        .grid {
+            display: grid;
+        }
+        
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        .md\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .md\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        
+        .lg\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        
+        .gap-4 {
+            gap: 1rem;
+        }
+        
+        .gap-6 {
+            gap: 1.5rem;
+        }
+        
+        .gap-8 {
+            gap: 2rem;
+        }
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Tailwind 基础类补充 */
+        .grid {
+            display: grid;
+        }
+        
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        .lg\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .lg\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        
+        .gap-6 {
+            gap: 1.5rem;
+        }
+        
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .items-start {
+            align-items: flex-start;
+        }
+        
+        .space-x-2 {
+            gap: 0.5rem;
+        }
+        
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        
+        .text-lg {
+            font-size: 1.125rem;
+        }
+        
+        .font-bold {
+            font-weight: 700;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .bg-primary\/10 {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .text-primary {
+            color: #3498db;
+        }
+        
+        .text-gray-600 {
+            color: #6b7280;
+        }
+        
+        .hover\:bg-gray-100:hover {
+            background-color: #f3f4f6;
+        }
+        
+        /* 自定义样式补充 */
+        .shadow-soft {
+            box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        .shadow-hover {
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .shadow-hover:hover {
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .transition-smooth {
+            transition: all 0.3s ease;
+        }
+        
+        .h-\[300px\] {
+            height: 300px;
+        }
+        
+        /* 自定义样式补充 */
+        .shadow-soft {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .hover\:shadow-lg:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .transition-smooth {
+            transition: all 0.3s ease;
+        }
+        
+        .text-gray-500 {
+            color: #9ca3af;
+        }
+        
+        .bg-red-500\/10 {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        
+        .text-red-500 {
+            color: #ef4444;
+        }
+        
+        .text-red-600 {
+            color: #dc2626;
+        }
+        
+        .bg-accent\/10 {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+        
+        .text-accent {
+            color: #6366f1;
+        }
+        
+        .bg-secondary\/10 {
+            background-color: rgba(148, 163, 184, 0.1);
+        }
+        
+        .text-secondary {
+            color: #94a3b8;
+        }
+        
+        .text-green-600 {
+            color: #16a34a;
+        }
+        
+        .text-xs {
+            font-size: 0.75rem;
+        }
+        
+        .mr-1 {
+            margin-right: 0.25rem;
+        }
+        
+        .ml-2 {
+            margin-left: 0.5rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+        
+        .p-6 {
+            padding: 1.5rem;
+        }
+        
+        .p-3 {
+            padding: 0.75rem;
+        }
+        
+        .bg-white {
+            background-color: white;
+        }
+        
+        .rounded {
+            border-radius: 0.375rem;
+        }
+        
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+        
+        .h-screen {
+            height: 100vh;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .gap-4 {
+            gap: 1rem;
+        }
+        
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .rounded-full {
+            border-radius: 9999px;
+        }
+        
+        .h-8 {
+            height: 2rem;
+        }
+        
+        .w-8 {
+            width: 2rem;
+        }
+        
+        .mr-3 {
+            margin-right: 0.75rem;
+        }
+        
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+        
+        .min-w-full {
+            min-width: 100%;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        .border-b {
+            border-bottom-width: 1px;
+            border-bottom-color: #e5e7eb;
+        }
+        
+        .px-4 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .py-3 {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        
+        .divide-y {
+            border-top-width: 1px;
+        }
+        
+        .divide-gray-200 {
+            border-color: #e5e7eb;
+        }
+        
+        .hover\:bg-gray-50:hover {
+            background-color: #f9fafb;
+        }
+        
+        .whitespace-nowrap {
+            white-space: nowrap;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f6f9;
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: white;
+            padding: 16px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        /* 主要内容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        /* 按钮样式 */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 地图容器 - 增加明显的边框以便识别 */
+        .map-container {
+            position: relative;
+            height: 400px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #3498db;
+        }
+        
+        /* 简单地图组件 - 使用北京市地区背景 */
+        .simple-map {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #e8f5e9;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300"><rect width="400" height="300" fill="%23e8f5e9"/><path d="M50,100 L150,50 L250,80 L300,120 L280,200 L180,250 L80,220 Z" fill="none" stroke="%234caf50" stroke-width="2"/><path d="M100,120 L150,100 L180,130 L160,180 L120,160 Z" fill="%23e0f7fa" stroke="%2300bcd4" stroke-width="1"/><path d="M200,90 L250,100 L270,150 L220,170 L190,140 Z" fill="%23e0f2f1" stroke="%23009688" stroke-width="1"/><text x="150" y="20" font-size="14" text-anchor="middle" fill="%23212121">北京市</text></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        /* 地图上的点 */
+        .map-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #3498db;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .map-point:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* 地图点标签 */
+        .map-label {
+            position: absolute;
+            font-size: 12px;
+            color: #333;
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* 自定义工具类 */
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .space-x-2 {
+            gap: 8px;
+        }
+        
+        .py-4 {
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .px-4 {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .bg-primary {
+            background-color: #3498db;
+        }
+        
+        .text-white {
+            color: white;
+        }
+        
+        .rounded {
+            border-radius: 4px;
+        }
+    </style>
+    
+    <!-- 图表和地图绘制函数 -->
+    <script>
+        // 自定义简单图表绘制函数
+        function drawSimpleChart(canvasId, type, data) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 获取数据
+            const labels = data.labels || [];
+            const datasets = data.datasets || [];
+            
+            if (labels.length === 0 || datasets.length === 0) return;
+            
+            // 绘制折线图
+            if (type === 'line') {
+                drawLineChart(ctx, canvas, labels, datasets);
+            }
+            // 绘制环形图
+            else if (type === 'doughnut') {
+                drawDoughnutChart(ctx, canvas, labels, datasets);
+            }
+        }
+        
+        // 绘制折线图
+        function drawLineChart(ctx, canvas, labels, datasets) {
+            // 图表边距
+            const margin = {
+                top: 30,
+                right: 30,
+                bottom: 40,
+                left: 40
+            };
+            
+            const chartWidth = canvas.width - margin.left - margin.right;
+            const chartHeight = canvas.height - margin.top - margin.bottom;
+            
+            // 找出数据的最大最小值
+            let minValue = Infinity;
+            let maxValue = -Infinity;
+            
+            datasets.forEach(dataset => {
+                dataset.data.forEach(value => {
+                    if (value < minValue) minValue = value;
+                    if (value > maxValue) maxValue = value;
+                });
+            });
+            
+            // 添加一些缓冲
+            const buffer = (maxValue - minValue) * 0.1;
+            minValue -= buffer;
+            maxValue += buffer;
+            
+            // 计算刻度间隔
+            const xScale = chartWidth / (labels.length - 1);
+            const yScale = chartHeight / (maxValue - minValue);
+            
+            // 绘制网格线
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            
+            // 垂直网格线
+            labels.forEach((label, index) => {
+                const x = margin.left + index * xScale;
+                ctx.beginPath();
+                ctx.moveTo(x, margin.top);
+                ctx.lineTo(x, canvas.height - margin.bottom);
+                ctx.stroke();
+            });
+            
+            // 水平网格线（5条）
+            for (let i = 0; i <= 5; i++) {
+                const y = canvas.height - margin.bottom - (chartHeight * i / 5);
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(canvas.width - margin.right, y);
+                ctx.stroke();
+            }
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 2;
+            
+            // X轴
+            ctx.beginPath();
+            ctx.moveTo(margin.left, canvas.height - margin.bottom);
+            ctx.lineTo(canvas.width - margin.right, canvas.height - margin.bottom);
+            ctx.stroke();
+            
+            // Y轴
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, canvas.height - margin.bottom);
+            ctx.stroke();
+            
+            // 绘制折线
+            datasets.forEach(dataset => {
+                ctx.strokeStyle = dataset.borderColor || '#3498db';
+                ctx.lineWidth = dataset.borderWidth || 2;
+                ctx.beginPath();
+                
+                // 虚线样式
+                if (dataset.borderDash) {
+                    ctx.setLineDash(dataset.borderDash);
+                } else {
+                    ctx.setLineDash([]);
+                }
+                
+                dataset.data.forEach((value, index) => {
+                    const x = margin.left + index * xScale;
+                    const y = canvas.height - margin.bottom - ((value - minValue) * yScale);
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    // 绘制点
+                    if (dataset.pointRadius !== 0) {
+                        ctx.fillStyle = dataset.borderColor || '#3498db';
+                        ctx.beginPath();
+                        ctx.arc(x, y, dataset.pointRadius || 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                
+                ctx.stroke();
+            });
+            
+            // 绘制标签
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            // X轴标签
+            labels.forEach((label, index) => {
+                const x = margin.left + index * xScale;
+                ctx.fillText(label, x, canvas.height - margin.bottom + 20);
+            });
+            
+            // Y轴标签（每10%）
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const value = minValue + ((maxValue - minValue) * i / 5);
+                const y = canvas.height - margin.bottom - (chartHeight * i / 5);
+                ctx.fillText(value.toFixed(1), margin.left - 10, y + 4);
+            }
+            
+            // 绘制图例
+            drawLegend(ctx, canvas, datasets, margin);
+        }
+        
+        // 绘制环形图
+        function drawDoughnutChart(ctx, canvas, labels, datasets) {
+            if (datasets.length === 0) return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) / 3;
+            const holeRadius = radius * 0.5;
+            
+            const dataset = datasets[0];
+            const data = dataset.data;
+            
+            // 计算总和
+            const total = data.reduce((sum, value) => sum + value, 0);
+            
+            let currentAngle = -Math.PI / 2; // 从顶部开始
+            
+            data.forEach((value, index) => {
+                const sliceAngle = (value / total) * 2 * Math.PI;
+                const endAngle = currentAngle + sliceAngle;
+                const color = dataset.backgroundColor[index] || `hsl(${(index * 60) % 360}, 70%, 60%)`;
+                
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, currentAngle, endAngle);
+                ctx.arc(centerX, centerY, holeRadius, endAngle, currentAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                // 绘制边框
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 更新角度
+                currentAngle = endAngle;
+            });
+            
+            // 绘制图例
+            drawLegend(ctx, canvas, datasets, { top: 10, right: 10, bottom: 10, left: 10 });
+        }
+        
+        // 绘制图例
+        function drawLegend(ctx, canvas, datasets, margin) {
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            
+            let legendY = margin.top;
+            let legendX = margin.left;
+            
+            datasets.forEach(dataset => {
+                const color = dataset.borderColor || dataset.backgroundColor[0] || '#3498db';
+                
+                // 绘制颜色方块
+                ctx.fillStyle = color;
+                ctx.fillRect(legendX, legendY, 12, 12);
+                
+                // 绘制标签
+                ctx.fillStyle = '#374151';
+                ctx.textAlign = 'left';
+                ctx.fillText(dataset.label, legendX + 20, legendY + 8);
+                
+                legendX += 100;
+            });
+        }
+        
+        // 改进的地图绘制函数 - 适配北京市地图背景
+        function drawSimpleMap(mapContainerId, districts) {
+            const container = document.getElementById(mapContainerId);
+            if (!container) return;
+            
+            // 获取容器尺寸
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            
+            // 清空容器
+            container.innerHTML = '';
+            
+            // 创建地图背景 - 北京市地区轮廓
+            const mapBg = document.createElement('div');
+            mapBg.className = 'simple-map';
+            mapBg.style.width = `${containerWidth}px`;
+            mapBg.style.height = `${containerHeight}px`;
+            container.appendChild(mapBg);
+            
+            // 根据数值范围设置颜色
+            const getColorByValue = (value) => {
+                if (value >= 95) return '#4caf50'; // 优秀 - 绿色
+                if (value >= 90) return '#2196f3'; // 良好 - 蓝色
+                if (value >= 85) return '#ffc107'; // 一般 - 黄色
+                if (value >= 80) return '#ff9800'; // 较差 - 橙色
+                return '#f44336'; // 差 - 红色
+            };
+            
+            // 添加地图点 - 调整坐标以适配北京市地图背景
+            districts.forEach(district => {
+                if (!district.x || !district.y || !district.value) return;
+                
+                // 创建点
+                const point = document.createElement('div');
+                point.className = 'map-point';
+                
+                // 调整坐标使点位置更适合北京市地图背景
+                const scaleX = containerWidth / 400; // 基于SVG宽度400
+                const scaleY = containerHeight / 300; // 基于SVG高度300
+                const adjustedX = district.x * scaleX;
+                const adjustedY = district.y * scaleY;
+                
+                point.style.left = `${adjustedX - 6}px`; // 中心点
+                point.style.top = `${adjustedY - 6}px`;
+                point.style.backgroundColor = getColorByValue(district.value);
+                
+                // 添加悬停效果
+                point.addEventListener('mouseover', function() {
+                    // 创建标签
+                    const label = document.createElement('div');
+                    label.className = 'map-label';
+                    
+                    // 调整标签位置以适配北京市地图背景
+                    label.style.left = `${adjustedX + 10}px`;
+                    label.style.top = `${adjustedY - 20}px`;
+                    
+                    // 格式化显示文本，包含状态信息
+                    let status = '';
+                    if (district.value >= 95) status = '优秀';
+                    else if (district.value >= 90) status = '良好';
+                    else if (district.value >= 85) status = '一般';
+                    else if (district.value >= 80) status = '较差';
+                    else status = '差';
+                    
+                    label.textContent = `${district.name}: ${district.value}% (${status})`;
+                    label.id = 'tempMapLabel';
+                    
+                    container.appendChild(label);
+                });
+                
+                point.addEventListener('mouseout', function() {
+                    const label = document.getElementById('tempMapLabel');
+                    if (label) {
+                        label.remove();
+                    }
+                });
+                
+                // 将点添加到地图背景上，而不是直接添加到容器
+                mapBg.appendChild(point);
+            });
+        }
+    </script>
+    <script>
+        // 模拟Tailwind配置对象以支持直接打开
+        const tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#3498db',
+                            secondary: '#2980b9',
+                            accent: '#1abc9c',
+                            neutral: '#f5f7fa',
+                            dark: '#2c3e50'
+                        },
+                        fontFamily: {
+                            sans: ['Inter', 'system-ui', 'sans-serif'],
+                        },
+                    },
+                }
+            }
+        };
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+            }
+            .transition-smooth {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-primary text-white h-10 w-10 rounded flex items-center justify-center">
+                        <i class="fa fa-bar-chart text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-primary">北京市移动服务质量通报系统</h1>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="index.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">首页概览</a>
+                    <a href="indicator_list.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">指标列查询</a>
+                    <a href="indicator_map.html" class="font-medium text-primary border-b-2 border-primary pb-1">指标地图</a>
+                    <a href="indicator_favorite.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">我的指标</a>
+                    <a href="indicator_alert.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">指标预警</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索指标..." class="pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <div class="flex items-center space-x-2 cursor-pointer hover:text-primary transition-smooth">
+                        <i class="fa fa-bell-o text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <span class="hidden md:inline text-sm font-medium">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 移动端导航菜单 -->
+    <div class="md:hidden bg-white border-t border-gray-200 sticky top-[69px] z-40">
+        <div class="flex justify-between overflow-x-auto px-4 py-2 no-scrollbar">
+            <a href="index.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">首页概览</a>
+            <a href="indicator_list.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">指标列查询</a>
+            <a href="indicator_map.html" class="whitespace-nowrap px-2 py-1 text-primary border-b-2 border-primary">指标地图</a>
+            <a href="indicator_favorite.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">我的指标</a>
+            <a href="indicator_alert.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">指标预警</a>
+        </div>
+    </div>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 页面标题和描述 -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold mb-2">指标地图</h2>
+            <p class="text-gray-600">在地图上可视化查看服务质量指标，支持市-区县-微格层级下转</p>
+        </div>
+
+        <!-- 查询条件和地图控制区域 -->
+        <div class="bg-white rounded-lg shadow-soft p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">指标选择</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="network_quality">网络质量综合指数</option>
+                        <option value="call_success_rate">呼叫接通率</option>
+                        <option value="data_transmission_rate">数据传输速率</option>
+                        <option value="customer_satisfaction">客户满意度</option>
+                        <option value="complaint_rate">投诉率</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">时间周期</label>
+                    <select class="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <option value="today">今日</option>
+                        <option value="yesterday">昨日</option>
+                        <option value="week">近一周</option>
+                        <option value="month">近一月</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">层级选择</label>
+                    <div class="flex space-x-2">
+                        <button id="cityLevel" class="flex-1 bg-primary text-white font-medium py-2 px-4 rounded-lg hover:bg-secondary transition-smooth">市级</button>
+                        <button id="districtLevel" class="flex-1 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-smooth">区县级</button>
+                        <button id="cellLevel" class="flex-1 border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition-smooth">微格级</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <div class="flex space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <button class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-smooth" title="放大">
+                            <i class="fa fa-search-plus"></i>
+                        </button>
+                        <button class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-smooth" title="缩小">
+                            <i class="fa fa-search-minus"></i>
+                        </button>
+                        <button class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-smooth" title="重置视图">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <button id="backToPrevious" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-smooth" disabled>
+                        <i class="fa fa-arrow-left mr-2"></i>返回上一级
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 地图和图例区域 -->
+
+        <!-- 区域指标排名表格 -->
+        <div class="bg-white rounded-lg shadow-soft p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">区域指标排名</h3>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-smooth">
+                        <i class="fa fa-download mr-1"></i>导出
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排名</th>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">区域</th>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指标值</th>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">变化</th>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="rankingTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-smooth" title="显示/隐藏图例">
+                    <i class="fa fa-list"></i>
+                </button>
+                <button class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-smooth" title="导出地图">
+                    <i class="fa fa-download"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600">当前视图:</label>
+                        <span class="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full">北京市</span>
+                    </div>
+                    <button  class="p-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-smooth" disabled>
+                        <i class="fa fa-arrow-left mr-1"></i> 返回上级
+                    </button>
+        </div>
+
+
+
+        <!-- 地图和图例区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+            <!-- 地图区域 -->
+            <div class="lg:col-span-3 bg-white rounded-lg shadow-soft p-6">
+                <div class="relative" style="height: 900px;">
+                    <!-- 这里是地图容器，使用模拟的北京市地图 -->
+                    <div id="mapContainer" class="w-full h-full rounded-lg bg-gray-100 border border-gray-200 relative">
+                        <!-- 地图模拟内容 -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <img src="https://picsum.photos/id/101/800/600" alt="北京市地图" class="max-w-full max-h-full rounded opacity-80">
+                            
+                            <!-- 覆盖区县数据点 -->
+                            <div class="absolute top-[30%] left-[45%] bg-green-500/80 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="haidian">
+                                海淀区 (96.8%)
+                            </div>
+                            <div class="absolute top-[35%] left-[55%] bg-green-500/70 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="chaoyang">
+                                朝阳区 (95.4%)
+                            </div>
+                            <div class="absolute top-[40%] left-[48%] bg-green-500/60 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="xicheng">
+                                西城区 (94.9%)
+                            </div>
+                            <div class="absolute top-[40%] left-[52%] bg-green-500/50 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="dongcheng">
+                                东城区 (93.2%)
+                            </div>
+                            <div class="absolute top-[48%] left-[50%] bg-green-500/40 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="fengtai">
+                                丰台区 (91.7%)
+                            </div>
+                            <div class="absolute top-[45%] left-[42%] bg-green-500/30 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="shijingshan">
+                                石景山区 (90.5%)
+                            </div>
+                            <div class="absolute top-[55%] left-[55%] bg-green-500/20 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="tongzhou">
+                                通州区 (89.3%)
+                            </div>
+                            <div class="absolute top-[35%] left-[38%] bg-green-500/10 text-white text-xs px-2 py-1 rounded-full cursor-pointer transform hover:scale-110 transition-smooth" data-district="changping">
+                                昌平区 (88.6%)
+                            </div>
+                        </div>
+                        
+                        <!-- 地图加载遮罩 -->
+                        <div class="absolute inset-0 bg-white/80 flex items-center justify-center hidden" id="mapLoading">
+                            <div class="flex flex-col items-center">
+                                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+                                <p class="text-gray-600">加载地图数据中...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 地图控制器 -->
+                    
+                </div>
+            </div>
+            
+            <!-- 区域排名表格 -->
+            <div class="bg-white rounded-lg shadow-soft p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold">区域指标排名</h3>
+        <div class="flex items-center space-x-2">
+            <button class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-smooth">
+                <i class="fa fa-download mr-1"></i>导出
+            </button>
+            <button class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-smooth">
+                <i class="fa fa-refresh mr-1"></i>刷新
+            </button>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+
+        <table class="min-w-full divide-y divide-gray-200">
+            
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排名</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">区域</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">指标值</th>
+                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">变化</th>
+                </tr>
+            </thead>
+             <tbody class="bg-white divide-y divide-gray-200" id="rankingTableBody1">
+       
+            </tbody>
+        </table>
+    </div>
+        </div>
+
+        <!-- 区域详情指标图表 -->
+
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-soft p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">各区域指标对比</h3>
+                    <button class="text-primary text-sm font-medium hover:underline">查看全部</button>
+                </div>
+                <div class="h-[300px]">
+                    <canvas id="districtComparisonChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-soft p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">区域指标趋势</h3>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 text-sm rounded bg-primary/10 text-primary font-medium">周</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">月</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">季</button>
+                    </div>
+                </div>
+                <div class="h-[300px]">
+                    <canvas id="districtTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 地图层级切换
+        document.getElementById('cityLevel').addEventListener('click', function() {
+            setActiveLevelButton(this);
+            document.getElementById('backToPrevious').disabled = true;
+            // 这里会触发加载市级地图的逻辑
+            loadMapData('city');
+        });
+
+        document.getElementById('districtLevel').addEventListener('click', function() {
+            setActiveLevelButton(this);
+            document.getElementById('backToPrevious').disabled = false;
+            // 这里会触发加载区县级地图的逻辑
+            loadMapData('district');
+        });
+
+        document.getElementById('cellLevel').addEventListener('click', function() {
+            setActiveLevelButton(this);
+            document.getElementById('backToPrevious').disabled = false;
+            // 这里会触发加载微格级地图的逻辑
+            loadMapData('cell');
+        });
+
+        document.getElementById('backToPrevious').addEventListener('click', function() {
+            // 返回到上一级地图视图的逻辑
+            const districtButtons = document.querySelectorAll('[data-district]');
+            if (districtButtons.length > 0) {
+                districtButtons[0].click();
+            }
+        });
+
+        // 设置激活的层级按钮样式
+        function setActiveLevelButton(button) {
+            const levelButtons = [document.getElementById('cityLevel'), document.getElementById('districtLevel'), document.getElementById('cellLevel')];
+            levelButtons.forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('border', 'border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+            });
+            button.classList.remove('border', 'border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
+            button.classList.add('bg-primary', 'text-white');
+        }
+
+        // 模拟加载地图数据
+        function loadMapData(level) {
+            const mapLoading = document.getElementById('mapLoading');
+            mapLoading.classList.remove('hidden');
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                mapLoading.classList.add('hidden');
+                // 这里会更新地图显示内容
+                console.log(`加载${level}级地图数据`);
+            }, 800);
+        }
+
+        // 区县点击事件
+        document.querySelectorAll('[data-district]').forEach(element => {
+            element.addEventListener('click', function() {
+                const district = this.getAttribute('data-district');
+                document.getElementById('districtLevel').click();
+                // 在实际应用中，这里会加载该区县的详细地图数据
+                console.log(`加载${district}区的详细地图数据`);
+            });
+        });
+  const districtRankingData = [
+                {
+                    name: "海淀区",
+                    value: 96.8,
+                    monthChange: "+1.2%",
+                    yearChange: "+2.5%",
+                    status: "优秀",
+                    statusColor: "green"
+                },
+                {
+                    name: "朝阳区",
+                    value: 95.4,
+                    monthChange: "+0.8%",
+                    yearChange: "+1.9%",
+                    status: "优秀",
+                    statusColor: "green"
+                },
+                {
+                    name: "西城区",
+                    value: 94.9,
+                    monthChange: "+0.5%",
+                    yearChange: "+1.7%",
+                    status: "良好",
+                    statusColor: "blue"
+                },
+                {
+                    name: "东城区",
+                    value: 93.2,
+                    monthChange: "-0.3%",
+                    yearChange: "+0.9%",
+                    status: "良好",
+                    statusColor: "blue"
+                },
+                {
+                    name: "丰台区",
+                    value: 91.7,
+                    monthChange: "+0.2%",
+                    yearChange: "+0.7%",
+                    status: "良好",
+                    statusColor: "blue"
+                },
+                {
+                    name: "石景山区",
+                    value: 90.5,
+                    monthChange: "+0.4%",
+                    yearChange: "+0.5%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "通州区",
+                    value: 89.3,
+                    monthChange: "-0.6%",
+                    yearChange: "-0.2%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "昌平区",
+                    value: 88.6,
+                    monthChange: "-0.2%",
+                    yearChange: "-0.5%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "大兴区",
+                    value: 87.9,
+                    monthChange: "-0.8%",
+                    yearChange: "-1.2%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "顺义区",
+                    value: 86.5,
+                    monthChange: "-1.1%",
+                    yearChange: "-1.8%",
+                    status: "较差",
+                    statusColor: "orange"
+                },
+                {
+                    name: "房山区",
+                    value: 85.2,
+                    monthChange: "-1.5%",
+                    yearChange: "-2.3%",
+                    status: "较差",
+                    statusColor: "orange"
+                },
+                {
+                    name: "门头沟区",
+                    value: 83.7,
+                    monthChange: "-2.0%",
+                    yearChange: "-3.1%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "平谷区",
+                    value: 82.4,
+                    monthChange: "-2.5%",
+                    yearChange: "-3.8%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "怀柔区",
+                    value: 81.6,
+                    monthChange: "-2.8%",
+                    yearChange: "-4.2%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "密云区",
+                    value: 80.3,
+                    monthChange: "-3.2%",
+                    yearChange: "-4.8%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "延庆区",
+                    value: 78.9,
+                    monthChange: "-3.7%",
+                    yearChange: "-5.5%",
+                    status: "差",
+                    statusColor: "red"
+                }
+            ];
+
+            // 分页设置
+            const itemsPerPage = 8;
+            let currentPage = 1;
+            const totalPages = Math.ceil(districtRankingData.length / itemsPerPage);
+
+            // 初始化表格
+  function renderRankingTable(page = 1) {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentData = districtRankingData;
+    
+    const tableBody = document.getElementById('rankingTableBody');
+    // const tableBody1 = document.getElementById('rankingTableBody1');
+    tableBody.innerHTML = '';
+    // tableBody1.innerHTML = '';
+    console.log('tableBody',tableBody);
+    currentData.forEach((district, index) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-smooth cursor-pointer';
+        row.onclick = () => {
+            // 点击行时的操作，例如跳转到该区域的详细页面
+            console.log(`查看${district.name}的详细数据`);
+        };
+        
+        // 排名列
+        const rankCell = document.createElement('td');
+        rankCell.className = 'px-4 py-3 whitespace-nowrap';
+        rankCell.innerHTML = `
+            <div class="flex items-center">
+                <div class="${getRankBadgeClass(index + startIndex + 1)} text-white font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                    ${index + startIndex + 1}
+                </div>
+            </div>
+        `;
+        
+        // 区域名称列
+        const nameCell = document.createElement('td');
+                    nameCell.className = 'px-4 py-3 whitespace-nowrap';
+                    nameCell.innerHTML = `<div class="font-medium">${district.name}</div>`;
+                    
+                    // 指标值列
+                    const valueCell = document.createElement('td');
+                    valueCell.className = 'px-4 py-3 whitespace-nowrap';
+                    valueCell.innerHTML = `<div class="font-bold ${getValueTextColor(district.value)}">${district.value}%</div>`;
+                    
+                    // 环比变化列
+                    const monthChangeCell = document.createElement('td');
+                    monthChangeCell.className = 'px-4 py-3 whitespace-nowrap';
+                    monthChangeCell.innerHTML = `<span class="${getChangeColorClass(district.monthChange)} text-sm">${district.monthChange}</span>`;
+                    
+                    // 同比变化列
+                    const yearChangeCell = document.createElement('td');
+                    yearChangeCell.className = 'px-4 py-3 whitespace-nowrap';
+                    yearChangeCell.innerHTML = `<span class="${getChangeColorClass(district.yearChange)} text-sm">${district.yearChange}</span>`;
+                    
+                    // 状态列
+                    const statusCell = document.createElement('td');
+                    statusCell.className = 'px-4 py-3 whitespace-nowrap';
+                    statusCell.innerHTML = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(district.statusColor)}">${district.status}</span>`;
+                   
+                    // 将单元格添加到行
+                    row.appendChild(rankCell);
+                    row.appendChild(nameCell);
+                    row.appendChild(valueCell);
+                    row.appendChild(monthChangeCell);
+                    // row.appendChild(yearChangeCell);
+                    row.appendChild(statusCell);
+                     console.log('row',row)
+                    // 将行添加到表格体
+                    tableBody.appendChild(row);
+                    // tableBody1.appendChild(row);
+                });
+                
+                // 更新分页信息
+                // document.getElementById('currentPage').textContent = startIndex + 1;
+                // document.getElementById('totalPages').textContent = Math.min(endIndex, districtRankingData.length);
+                // document.getElementById('totalItems').textContent = districtRankingData.length;
+                
+                // // 更新分页按钮状态
+                // document.getElementById('prevPage').disabled = page <= 1;
+                // document.getElementById('nextPage').disabled = page >= totalPages;
+            }
+  function renderRankingTable1(page = 1) {
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentData = districtRankingData;
+
+    const tableBody1 = document.getElementById('rankingTableBody1');
+    // const tableBody1 = document.getElementById('rankingTableBody1');
+    tableBody1.innerHTML = '';
+    // tableBody1.innerHTML = '';
+    // console.log('tableBody',tableBody);
+    currentData.forEach((district, index) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-smooth cursor-pointer';
+        row.onclick = () => {
+            // 点击行时的操作，例如跳转到该区域的详细页面
+            console.log(`查看${district.name}的详细数据`);
+        };
+
+        // 排名列
+        const rankCell = document.createElement('td');
+        rankCell.className = 'px-4 py-3 whitespace-nowrap';
+        rankCell.innerHTML = `
+            <div class="flex items-center">
+                <div class="${getRankBadgeClass(index + startIndex + 1)} text-white font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                    ${index + startIndex + 1}
+                </div>
+            </div>
+        `;
+
+        // 区域名称列
+        const nameCell = document.createElement('td');
+                    nameCell.className = 'px-4 py-3 whitespace-nowrap';
+                    nameCell.innerHTML = `<div class="font-medium">${district.name}</div>`;
+
+                    // 指标值列
+                    const valueCell = document.createElement('td');
+                    valueCell.className = 'px-4 py-3 whitespace-nowrap';
+                    valueCell.innerHTML = `<div class="font-bold ${getValueTextColor(district.value)}">${district.value}%</div>`;
+
+                    // 环比变化列
+                    const monthChangeCell = document.createElement('td');
+                    monthChangeCell.className = 'px-4 py-3 whitespace-nowrap';
+                    monthChangeCell.innerHTML = `<span class="${getChangeColorClass(district.monthChange)} text-sm">${district.monthChange}</span>`;
+
+                    // 同比变化列
+                    const yearChangeCell = document.createElement('td');
+                    yearChangeCell.className = 'px-4 py-3 whitespace-nowrap';
+                    yearChangeCell.innerHTML = `<span class="${getChangeColorClass(district.yearChange)} text-sm">${district.yearChange}</span>`;
+
+                    // 状态列
+                    const statusCell = document.createElement('td');
+                    statusCell.className = 'px-4 py-3 whitespace-nowrap';
+                    statusCell.innerHTML = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(district.statusColor)}">${district.status}</span>`;
+
+                    // 将单元格添加到行
+                    row.appendChild(rankCell);
+                    row.appendChild(nameCell);
+                    row.appendChild(valueCell);
+                    row.appendChild(monthChangeCell);
+                    row.appendChild(yearChangeCell);
+                    row.appendChild(statusCell);
+                     console.log('row',row)
+                    // 将行添加到表格体
+                    tableBody1.appendChild(row);
+                    // tableBody1.appendChild(row);
+                });
+
+                // 更新分页信息
+                // document.getElementById('currentPage').textContent = startIndex + 1;
+                // document.getElementById('totalPages').textContent = Math.min(endIndex, districtRankingData.length);
+                // document.getElementById('totalItems').textContent = districtRankingData.length;
+
+                // // 更新分页按钮状态
+                // document.getElementById('prevPage').disabled = page <= 1;
+                // document.getElementById('nextPage').disabled = page >= totalPages;
+            }
+
+            // 获取排名徽章样式
+            function getRankBadgeClass(rank) {
+                if (rank === 1) return 'bg-yellow-500';
+                if (rank === 2) return 'bg-gray-400';
+                if (rank === 3) return 'bg-amber-600';
+                return 'bg-gray-300';
+            }
+
+            // 获取指标值文本颜色
+            function getValueTextColor(value) {
+                if (value >= 95) return 'text-green-600';
+                if (value >= 90) return 'text-blue-600';
+                if (value >= 85) return 'text-yellow-600';
+                if (value >= 80) return 'text-orange-600';
+                return 'text-red-600';
+            }
+
+            // 获取变化颜色类
+            function getChangeColorClass(change) {
+                return change.startsWith('+') ? 'text-green-600' : 'text-red-600';
+            }
+
+            // 获取状态徽章样式
+            function getStatusBadgeClass(statusColor) {
+    switch(statusColor) {
+        case 'green': return 'bg-green-100 text-green-800';
+        case 'blue': return 'bg-blue-100 text-blue-800';
+        case 'yellow': return 'bg-yellow-100 text-yellow-800';
+        case 'orange': return 'bg-orange-100 text-orange-800';
+        case 'red': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+        // 确保页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置画布尺寸
+            const comparisonCanvas = document.getElementById('districtComparisonChart');
+            const trendCanvas = document.getElementById('districtTrendChart');
+            
+            if (comparisonCanvas) {
+                comparisonCanvas.width = 600;
+                comparisonCanvas.height = 300;
+            }
+            
+            if (trendCanvas) {
+                trendCanvas.width = 600;
+                trendCanvas.height = 300;
+            }
+
+
+            // 区域对比图表数据
+            const comparisonData = {
+                labels: ['海淀区', '朝阳区', '西城区', '东城区', '丰台区', '石景山区', '通州区', '昌平区'],
+                datasets: [{
+                    label: '网络质量综合指数',
+                    data: [96.8, 95.4, 94.9, 93.2, 91.7, 90.5, 89.3, 88.6],
+                    borderColor: '#3498db'
+                }]
+            };
+            
+            // 区域趋势图表数据
+            const trendData = {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [
+                    {
+                        label: '海淀区',
+                        data: [96.2, 96.4, 96.5, 96.7, 96.6, 96.8, 96.8],
+                        borderColor: '#3498db',
+                        tension: 0.3
+                    },
+                    {
+                        label: '朝阳区',
+                        data: [95.0, 95.1, 95.2, 95.3, 95.3, 95.4, 95.4],
+                        borderColor: '#1abc9c',
+                        tension: 0.3
+                    },
+                    {
+                        label: '丰台区',
+                        data: [91.5, 91.6, 91.7, 91.7, 91.6, 91.7, 91.7],
+                        borderColor: '#e74c3c',
+                        tension: 0.3
+                    }
+                ]
+            };
+            
+            // 绘制图表
+            if (comparisonCanvas) {
+                drawSimpleChart('districtComparisonChart', 'line', comparisonData);
+            }
+            
+            if (trendCanvas) {
+                drawSimpleChart('districtTrendChart', 'line', trendData);
+            }
+            
+            // 北京市各区数据
+            const districts = [
+                { name: '东城区', x: 220, y: 150, value: 93.2 },
+                { name: '西城区', x: 180, y: 150, value: 94.9 },
+                { name: '朝阳区', x: 300, y: 160, value: 95.4 },
+                { name: '海淀区', x: 120, y: 180, value: 96.8 },
+                { name: '丰台区', x: 150, y: 220, value: 91.7 },
+                { name: '石景山区', x: 80, y: 220, value: 90.5 },
+                { name: '通州区', x: 320, y: 220, value: 89.3 },
+                { name: '昌平区', x: 150, y: 80, value: 88.6 }
+            ];
+            
+            // 绘制简单地图
+            console.log('正在调用drawSimpleMap函数，地图容器ID:', 'mapContainer');
+            console.log('地图数据:', districts);
+            drawSimpleMap('mapContainer', districts);
+            var data = [
+                { name: '东城区', x: 220, y: 150, value: 93.2 },
+                { name: '西城区', x: 180, y: 150, value: 94.9 },
+                { name: '朝阳区', x: 300, y: 160, value: 95.4 },
+                { name: '海淀区', x: 120, y: 180, value: 96.8 },
+                { name: '丰台区', x: 150, y: 220, value: 91.7 },
+                { name: '石景山区', x: 80, y: 220, value: 90.5 },
+                { name: '通州区', x: 320, y: 220, value: 89.3 },
+                { name: '昌平区', x: 150, y: 80, value: 88.6 }
+            ];
+            window.dataList= [
+                {
+                    name: "海淀区",
+                    value: 96.8,
+                    monthChange: "+1.2%",
+                    yearChange: "+2.5%",
+                    status: "优秀",
+                    statusColor: "green"
+                },
+                {
+                    name: "朝阳区",
+                    value: 95.4,
+                    monthChange: "+0.8%",
+                    yearChange: "+1.9%",
+                    status: "优秀",
+                    statusColor: "green"
+                },
+                {
+                    name: "西城区",
+                    value: 94.9,
+                    monthChange: "+0.5%",
+                    yearChange: "+1.7%",
+                    status: "良好",
+                    statusColor: "blue"
+                },
+                {
+                    name: "东城区",
+                    value: 93.2,
+                    monthChange: "-0.3%",
+                    yearChange: "+0.9%",
+                    status: "良好",
+                    statusColor: "blue"
+                },
+                {
+                    name: "丰台区",
+                    value: 91.7,
+                    monthChange: "+0.2%",
+                    yearChange: "+0.7%",
+                    status: "良好",
+                    statusColor: "blue"
+                },
+                {
+                    name: "石景山区",
+                    value: 90.5,
+                    monthChange: "+0.4%",
+                    yearChange: "+0.5%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "通州区",
+                    value: 89.3,
+                    monthChange: "-0.6%",
+                    yearChange: "-0.2%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "昌平区",
+                    value: 88.6,
+                    monthChange: "-0.2%",
+                    yearChange: "-0.5%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "大兴区",
+                    value: 87.9,
+                    monthChange: "-0.8%",
+                    yearChange: "-1.2%",
+                    status: "一般",
+                    statusColor: "yellow"
+                },
+                {
+                    name: "顺义区",
+                    value: 86.5,
+                    monthChange: "-1.1%",
+                    yearChange: "-1.8%",
+                    status: "较差",
+                    statusColor: "orange"
+                },
+                {
+                    name: "房山区",
+                    value: 85.2,
+                    monthChange: "-1.5%",
+                    yearChange: "-2.3%",
+                    status: "较差",
+                    statusColor: "orange"
+                },
+                {
+                    name: "门头沟区",
+                    value: 83.7,
+                    monthChange: "-2.0%",
+                    yearChange: "-3.1%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "平谷区",
+                    value: 82.4,
+                    monthChange: "-2.5%",
+                    yearChange: "-3.8%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "怀柔区",
+                    value: 81.6,
+                    monthChange: "-2.8%",
+                    yearChange: "-4.2%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "密云区",
+                    value: 80.3,
+                    monthChange: "-3.2%",
+                    yearChange: "-4.8%",
+                    status: "差",
+                    statusColor: "red"
+                },
+                {
+                    name: "延庆区",
+                    value: 78.9,
+                    monthChange: "-3.7%",
+                    yearChange: "-5.5%",
+                    status: "差",
+                    statusColor: "red"
+                }
+            ]
+
+            // 对数据进行排序并取前10名
+            var sortedData = data.sort(function(a, b) {
+                return b.value - a.value;
+            });
+
+            var yData = [];
+            var barData = [];
+
+            // for (var i = 0; i < 10; i++) {
+            //     barData.push(sortedData[i]);
+            //     yData.push(i + sortedData[i].name);
+            // }
+
+            // 初始化ECharts实例
+            var chartDom = document.getElementById('mapContainer');
+            var myChart = echarts.init(chartDom);
+
+            // 配置项
+            var option = option = {
+    tooltip: {
+        triggerOn: "click",
+        formatter: function(e, t, n) {
+            return .5 == e.value ? e.name + "：有疑似病例" : e.seriesName + "<br />" + e.name + "：" + e.value
+        }
+    },
+    visualMap: {
+        min: 0,
+        max: 1000,
+        right: 10,
+        top: 20,
+        showLabel: !0,
+        text: ["高", "低"],
+        pieces: [{
+            gt: 95,
+            label: "优秀",
+            color: "#166534"
+        }, {
+            gte: 90,
+            lte: 95,
+            label: "良好",
+            color: "#2563eb"
+        }, {
+            gte: 85,
+            lt: 90,
+            label: "一般",
+            color: "#854d0e"
+        }, {
+            gt: 75,
+            lt: 85,
+            label: "较差",
+            color: "#ea580c"
+        }, {
+            lt: 75,
+            label: "差",
+            color: "red"
+        }],
+        show: !0
+    },
+    geo: {
+        map: "beijing",
+        roam: !1,
+        scaleLimit: {
+            min: 1,
+            max: 2
+        },
+        zoom: 1.23,
+        top: 120,
+        label: {
+            normal: {
+                show: !0,
+                fontSize: "14",
+                color: "rgba(0,0,0,0.7)"
+            }
+        },
+        itemStyle: {
+            normal: {
+                //shadowBlur: 50,
+                //shadowColor: 'rgba(0, 0, 0, 0.2)',
+                borderColor: "rgba(0, 0, 0, 0.2)"
+            },
+            emphasis: {
+                areaColor: "#f2d5ad",
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                borderWidth: 0
+            }
+        }
+    },
+    series: [{
+        name: "确诊病例",
+        type: "map",
+        geoIndex: 0,
+        data: window.dataList
+    }]
+};
+          
+
+
+                  // 使用配置项和数据显示图表
+            myChart.setOption(option);
+
+                  // 添加控制按钮功能
+                //   document.getElementById('resetView').addEventListener('click', function() {
+                //       myChart.dispatchAction({
+                //           type: 'geoRoam',
+                //           geoIndex: 0,
+                //           zoom: 1,
+                //           center: [0, 0]
+                //       });
+                //   });
+            renderRankingTable();
+            renderRankingTable1();
+
+         // 分页按钮事件
+    // document.getElementById('prevPage').addEventListener('click', () => {
+    //     if (currentPage > 1) {
+    //         currentPage--;
+    //         renderRankingTable(currentPage);
+    //     }
+    // });
+    
+    // document.getElementById('nextPage').addEventListener('click', () => {
+    //     if (currentPage < totalPages) {
+    //         currentPage++;
+    //         renderRankingTable(currentPage);
+    //     }
+    // });
+                //   let animationEnabled = true;
+                //   document.getElementById('toggleAnimation').addEventListener('click', function() {
+                //       animationEnabled = !animationEnabled;
+                //       myChart.setOption({
+                //           animation: animationEnabled
+                //       });
+                //       this.textContent = animationEnabled ? '关闭动画' : '开启动画';
+                //   });
+            //   })
+            //   .catch(error => {
+            //       console.error('加载地图数据失败:', error);
+            //       document.querySelector('.loading').innerHTML =
+            //         '地图数据加载失败，请确保china.json文件在正确位置<br>' +
+            //         '错误信息: ' + error.message;
+            //   });
+            // 使用配置项和数据显示图表
+            // myChart.setOption(option);
+
+            // 响应窗口大小变化
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        });
+    </script>
+</body>
+</html>

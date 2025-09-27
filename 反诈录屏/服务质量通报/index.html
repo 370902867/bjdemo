@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务质量通报系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/6.0.0/echarts.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3498db',
+                        secondary: '#2980b9',
+                        accent: '#1abc9c',
+                        neutral: '#f5f7fa',
+                        dark: '#2c3e50'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+            }
+            .transition-smooth {
+                transition: all 0.3s ease;
+            }
+        }
+    </style>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .flex-column-mobile {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* 统一网格布局样式 */
+        .grid {
+            display: grid;
+        }
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        .md\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .lg\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .lg\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .lg\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .lg\:col-span-2 {
+            grid-column: span 2 / span 2;
+        }
+        .gap-6 {
+            gap: 1.5rem;
+        }
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .items-start {
+            align-items: flex-start;
+        }
+        .space-x-2 {
+            gap: 0.5rem;
+        }
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        .text-lg {
+            font-size: 1.125rem;
+        }
+        .font-bold {
+            font-weight: 700;
+        }
+        .font-medium {
+            font-weight: 500;
+        }
+        .bg-primary\/10 {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        .text-primary {
+            color: #3498db;
+        }
+        .text-gray-600 {
+            color: #6b7280;
+        }
+        
+        /* 自定义样式补充 */
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 4px;
+            line-height: 1.2;
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        /* 按钮样式 */
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .flex-column-mobile {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* 统一网格布局样式 */
+        .grid {
+            display: grid;
+        }
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        .md\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .lg\:grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .lg\:grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .lg\:grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .lg\:col-span-2 {
+            grid-column: span 2 / span 2;
+        }
+        .gap-6 {
+            gap: 1.5rem;
+        }
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* 自定义工具类 */
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .space-x-2 {
+            gap: 8px;
+        }
+        
+        .py-4 {
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .px-4 {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .bg-primary {
+            background-color: #3498db;
+        }
+        
+        .text-white {
+            color: white;
+        }
+        
+        .rounded {
+            border-radius: 4px;
+        }
+        
+        /* 导航菜单 */
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #e8f4fd;
+            color: #3498db;
+        }
+        
+        /* 统计卡片 */
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 4px;
+            line-height: 1.2;
+        }
+    </style>
+    
+    <!-- 自定义图表绘制函数 -->
+    <script>
+        // 自定义简单图表绘制函数
+        function drawSimpleChart(canvasId, type, data) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 获取数据
+            const labels = data.labels || [];
+            const datasets = data.datasets || [];
+            
+            if (labels.length === 0 || datasets.length === 0) return;
+            
+            // 绘制折线图
+            if (type === 'line') {
+                drawLineChart(ctx, canvas, labels, datasets);
+            }
+            // 绘制环形图
+            else if (type === 'doughnut') {
+                drawDoughnutChart(ctx, canvas, labels, datasets);
+            }
+        }
+        
+        // 绘制折线图
+        function drawLineChart(ctx, canvas, labels, datasets) {
+            // 图表边距
+            const margin = {
+                top: 70,
+                right: 30,
+                bottom: 40,
+                left: 70
+            };
+            
+            const chartWidth = canvas.width - margin.left - margin.right;
+            const chartHeight = canvas.height - margin.top - margin.bottom;
+            
+            // 找出数据的最大最小值
+            let minValue = Infinity;
+            let maxValue = -Infinity;
+            
+            datasets.forEach(dataset => {
+                dataset.data.forEach(value => {
+                    if (value < minValue) minValue = value;
+                    if (value > maxValue) maxValue = value;
+                });
+            });
+            
+            // 添加一些缓冲
+            const buffer = (maxValue - minValue) * 0.1;
+            minValue -= buffer;
+            maxValue += buffer;
+            
+            // 计算刻度间隔
+            const xScale = chartWidth / (labels.length - 1);
+            const yScale = chartHeight / (maxValue - minValue);
+            
+            // 绘制网格线
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            
+            // 垂直网格线
+            labels.forEach((label, index) => {
+                const x = margin.left + index * xScale;
+                ctx.beginPath();
+                ctx.moveTo(x, margin.top);
+                ctx.lineTo(x, canvas.height - margin.bottom);
+                ctx.stroke();
+            });
+            
+            // 水平网格线（5条）
+            for (let i = 0; i <= 5; i++) {
+                const y = canvas.height - margin.bottom - (chartHeight * i / 5);
+                ctx.beginPath();
+                ctx.moveTo(margin.left, y);
+                ctx.lineTo(canvas.width - margin.right, y);
+                ctx.stroke();
+            }
+            
+            // 绘制坐标轴
+            ctx.strokeStyle = '#6b7280';
+            ctx.lineWidth = 2;
+            
+            // X轴
+            ctx.beginPath();
+            ctx.moveTo(margin.left, canvas.height - margin.bottom);
+            ctx.lineTo(canvas.width - margin.right, canvas.height - margin.bottom);
+            ctx.stroke();
+            
+            // Y轴
+            ctx.beginPath();
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, canvas.height - margin.bottom);
+            ctx.stroke();
+            
+            // 绘制折线
+            datasets.forEach(dataset => {
+                ctx.strokeStyle = dataset.borderColor || '#3498db';
+                ctx.lineWidth = dataset.borderWidth || 2;
+                ctx.beginPath();
+                
+                dataset.data.forEach((value, index) => {
+                    const x = margin.left + index * xScale;
+                    const y = canvas.height - margin.bottom - ((value - minValue) * yScale);
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    // 绘制点
+                    if (dataset.pointRadius !== 0) {
+                        ctx.fillStyle = dataset.borderColor || '#3498db';
+                        ctx.beginPath();
+                        ctx.arc(x, y, dataset.pointRadius || 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                
+                ctx.stroke();
+            });
+            
+            // 绘制标签
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            // X轴标签
+            labels.forEach((label, index) => {
+                const x = margin.left + index * xScale;
+                ctx.fillText(label, x, canvas.height - margin.bottom + 20);
+            });
+            
+            // Y轴标签（每10%）
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const value = minValue + ((maxValue - minValue) * i / 5);
+                const y = canvas.height - margin.bottom - (chartHeight * i / 5);
+                ctx.fillText(value.toFixed(1), margin.left - 10, y + 4);
+            }
+            
+            // 绘制图例
+            drawLegend(ctx, canvas, datasets, margin);
+        }
+        
+        // 绘制环形图
+        function drawDoughnutChart(ctx, canvas, labels, datasets) {
+            if (datasets.length === 0) return;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(canvas.width, canvas.height) / 3;
+            const holeRadius = radius * 0.5;
+            
+            const dataset = datasets[0];
+            const data = dataset.data;
+            
+            // 计算总和
+            const total = data.reduce((sum, value) => sum + value, 0);
+            
+            let currentAngle = -Math.PI / 2; // 从顶部开始
+            
+            data.forEach((value, index) => {
+                const sliceAngle = (value / total) * 2 * Math.PI;
+                const endAngle = currentAngle + sliceAngle;
+                const color = dataset.backgroundColor[index] || `hsl(${(index * 60) % 360}, 70%, 60%)`;
+                
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, currentAngle, endAngle);
+                ctx.arc(centerX, centerY, holeRadius, endAngle, currentAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+                
+                // 绘制边框
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 更新角度
+                currentAngle = endAngle;
+            });
+            
+            // 绘制图例
+            drawLegend(ctx, canvas, datasets, { top: 10, right: 10, bottom: 10, left: 10 });
+        }
+        
+        // 绘制图例
+        function drawLegend(ctx, canvas, datasets, margin) {
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            
+            let legendY = margin.top;
+            let legendX = margin.left;
+            
+            datasets.forEach(dataset => {
+                const color = dataset.borderColor || dataset.backgroundColor[0] || '#3498db';
+                
+                // 绘制颜色方块
+                ctx.fillStyle = color;
+                ctx.fillRect(legendX, legendY, 12, 12);
+                
+                // 绘制标签
+                ctx.fillStyle = '#374151';
+                ctx.textAlign = 'left';
+                ctx.fillText(dataset.label, legendX + 20, legendY + 8);
+                
+                legendX += 100;
+            });
+        }
+    </script>
+    
+    <style>
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* 自定义工具类 */
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .space-x-2 {
+            gap: 8px;
+        }
+        
+        .py-4 {
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .px-4 {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .bg-primary {
+            background-color: #3498db;
+        }
+        
+        .text-white {
+            color: white;
+        }
+        
+        .rounded {
+            border-radius: 4px;
+        }
+        
+        .text-primary {
+            color: #3498db;
+        }
+        
+        .text-2xl {
+            font-size: 24px;
+        }
+        
+        .font-bold {
+            font-weight: bold;
+        }
+    </style>
+    
+    <!-- 简单的Chart.js替代实现 -->
+    <script>
+        // 简单图表绘制函数
+        function drawSimpleChart(canvasId, type, data, options) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 清空画布
+            ctx.clearRect(0, 0, width, height);
+            
+            if (type === 'line') {
+                // 简化的折线图实现
+                const datasets = data.datasets[0];
+                const labels = data.labels;
+                
+                if (!datasets || !labels) return;
+                
+                // 计算数据范围
+                const min = Math.min(...datasets.data);
+                const max = Math.max(...datasets.data);
+                const range = max - min;
+                
+                // 绘制网格线
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 1;
+                
+                // 绘制水平线
+                for (let i = 0; i <= 5; i++) {
+                    const y = height - (i * height / 5);
+                    ctx.beginPath();
+                    ctx.moveTo(40, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                
+                // 绘制折线
+                    ctx.strokeStyle = datasets.backgroundColor || '#3498db';
+                    ctx.lineWidth = 2;
+                    
+                    ctx.beginPath();
+                    datasets.data.forEach((value, index) => {
+                        const x = 60 + (index * (width - 60) / (labels.length - 1));
+                        const y = height - 40 - ((value - min) * (height - 40) / range);
+                        
+                        if (index === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    });
+                    ctx.stroke();
+                    
+                    // 绘制数据点
+                    ctx.fillStyle = datasets.backgroundColor || '#3498db';
+                    datasets.data.forEach((value, index) => {
+                        const x = 60 + (index * (width - 60) / (labels.length - 1));
+                        const y = height - 40 - ((value - min) * (height - 40) / range);
+                        
+                        ctx.beginPath();
+                        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                        ctx.fill();
+                    });
+                    
+                    // 绘制标签
+                    ctx.fillStyle = '#666';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    
+                    labels.forEach((label, index) => {
+                        const x = 60 + (index * (width - 60) / (labels.length - 1));
+                        const y = height - 10;
+                        ctx.fillText(label, x, y);
+                    });
+                    
+                    // 绘制X轴标题
+                    ctx.textAlign = 'center';
+                    ctx.fillText('时间', width / 2, height - 20);
+                    
+                    // 绘制Y轴标题
+                    ctx.save();
+                    ctx.translate(30, height / 2);
+                    ctx.rotate(-Math.PI / 2);
+                    ctx.textAlign = 'center';
+                    ctx.fillText('服务质量(%)', 0, 0);
+                    ctx.restore();
+                    
+                    // 绘制Y轴刻度值
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = '#666';
+                    for (let i = 0; i <= 5; i++) {
+                        const value = min + ((max - min) * i / 5);
+                        const y = height - 40 - (i * (height - 40) / 5);
+                        ctx.fillText(Math.round(value) + '%', 50, y + 4);
+                    }
+            } else if (type === 'doughnut') {
+                // 简化的环形图实现
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = Math.min(centerX, centerY) - 20;
+                const innerRadius = radius * 0.7;
+                
+                let startAngle = -Math.PI / 2;
+                const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                
+                data.datasets[0].data.forEach((value, index) => {
+                    const sliceAngle = (value / total) * 2 * Math.PI;
+                    const endAngle = startAngle + sliceAngle;
+                    const color = data.datasets[0].backgroundColor[index];
+                    
+                    // 绘制扇形
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // 绘制内环
+                    ctx.fillStyle = '#f9f9f9';
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, innerRadius, startAngle, endAngle);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    startAngle = endAngle;
+                });
+                
+                // 绘制图例
+                    const legendX = 20;
+                    let legendY = 20;
+                    
+                    data.labels.forEach((label, index) => {
+                        const color = data.datasets[0].backgroundColor[index];
+                        
+                        // 绘制颜色方块
+                        ctx.fillStyle = color;
+                        ctx.fillRect(legendX, legendY, 12, 12);
+                        
+                        // 绘制标签
+                        ctx.fillStyle = '#333';
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(label, legendX + 16, legendY + 10);
+                        
+                        legendY += 20;
+                    });
+            }
+        }
+    </script>
+    <script>
+        // 模拟Tailwind配置对象以避免错误
+        const tailwind = {
+            config: {}
+        };
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3498db',
+                        secondary: '#2980b9',
+                        accent: '#1abc9c',
+                        neutral: '#f5f7fa',
+                        dark: '#2c3e50'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <!-- Tailwind风格工具类 -->
+    <style>
+        .shadow-soft {
+            box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.05);
+        }
+        .hover\:shadow-lg:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .transition-smooth {
+            transition: all 0.3s ease;
+
+        }
+
+        .newhigth1 {
+            height: 55px;
+        }
+        .newhigth {
+            height: 64px;
+        }
+        .content-auto {
+            content-visibility: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-primary text-white h-10 w-10 rounded flex items-center justify-center">
+                        <i class="fa fa-bar-chart text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-primary">北京市移动服务质量通报系统</h1>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="index.html" class="font-medium text-primary border-b-2 border-primary pb-1">首页概览</a>
+                    <a href="indicator_list.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">指标列查询</a>
+                    <a href="indicator_map.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">指标地图</a>
+                    <a href="indicator_favorite.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">我的指标</a>
+                    <a href="indicator_alert.html" class="font-medium text-gray-600 hover:text-primary transition-smooth">指标预警</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索指标..." class="pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <div class="flex items-center space-x-2 cursor-pointer hover:text-primary transition-smooth">
+                        <i class="fa fa-bell-o text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <span class="hidden md:inline text-sm font-medium">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 移动端导航菜单 -->
+    <div class="md:hidden bg-white border-t border-gray-200 sticky top-[69px] z-40">
+        <div class="flex justify-between overflow-x-auto px-4 py-2 no-scrollbar">
+            <a href="index.html" class="whitespace-nowrap px-2 py-1 text-primary border-b-2 border-primary">首页概览</a>
+            <a href="indicator_list.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">指标列查询</a>
+            <a href="indicator_map.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">指标地图</a>
+            <a href="indicator_favorite.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">我的指标</a>
+            <a href="indicator_alert.html" class="whitespace-nowrap px-2 py-1 text-gray-600 hover:text-primary">指标预警</a>
+        </div>
+    </div>
+
+    <!-- 主体内容 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 概览统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-soft p-6 transition-smooth hover:shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">监控指标总数</p>
+                        <h3 class="stat-value">126</h3>
+                    </div>
+                    <div class="bg-primary/10 text-primary p-3 rounded-full">
+                        <i class="fa fa-line-chart text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm font-medium text-green-600 flex items-center"><i class="fa fa-arrow-up mr-1"></i> 8.2%</span>
+                    <span class="text-xs text-gray-500 ml-2">较上月</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-soft p-6 transition-smooth hover:shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">今日预警指标</p>
+                        <h3 class="stat-value">12</h3>
+                    </div>
+                    <div class="bg-red-500/10 text-red-500 p-3 rounded-full">
+                        <i class="fa fa-exclamation-triangle text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm font-medium text-red-600 flex items-center"><i class="fa fa-arrow-up mr-1"></i> 3.5%</span>
+                    <span class="text-xs text-gray-500 ml-2">较昨日</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-soft p-6 transition-smooth hover:shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">达标率</p>
+                        <h3 class="stat-value">92.3%</h3>
+                    </div>
+                    <div class="bg-accent/10 text-accent p-3 rounded-full">
+                        <i class="fa fa-check-circle text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm font-medium text-green-600 flex items-center"><i class="fa fa-arrow-up mr-1"></i> 1.7%</span>
+                    <span class="text-xs text-gray-500 ml-2">较上季度</span>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-soft p-6 transition-smooth hover:shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">已收藏指标</p>
+                        <h3 class="stat-value">28</h3>
+                    </div>
+                    <div class="bg-secondary/10 text-secondary p-3 rounded-full">
+                        <i class="fa fa-star text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm font-medium text-green-600 flex items-center"><i class="fa fa-arrow-up mr-1"></i> 5</span>
+                    <span class="text-xs text-gray-500 ml-2">本月新增</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="lg:col-span-2 bg-white rounded-lg shadow-soft p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-bold">服务质量趋势</h2>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 text-sm rounded bg-primary/10 text-primary font-medium">周</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">月</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">季</button>
+                        <button class="px-3 py-1 text-sm rounded text-gray-600 font-medium hover:bg-gray-100">年</button>
+                    </div>
+                </div>
+                <div class="h-[300px]" id="trendChartEcharts">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-soft p-6">
+                <h2 class="text-lg font-bold mb-6">指标分类统计</h2>
+                <div class="h-[300px]"  id="categoryChartEcharts">
+<!--                    <canvas id="categoryChart"></canvas>-->
+                </div>
+            </div>
+        </div>
+
+        <!-- 最近预警和待处理事项 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-soft p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold">最近预警指标</h2>
+                    <a href="indicator_alert.html" class="text-primary text-sm font-medium hover:underline">查看全部</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                <th class="px-4 py-3">指标名称</th>
+                                <th class="px-4 py-3">预警类型</th>
+                                <th class="px-4 py-3">预警时间</th>
+                                <th class="px-4 py-3">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-smooth newhigth1">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-red-500/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                            <i class="fa fa-signal text-red-500"></i>
+                                        </div>
+                                        <span>网络延迟率</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">严重</span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">2023-06-15 09:32</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">待处理</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-smooth newhigth1">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-orange-500/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                            <i class="fa fa-signal text-orange-500"></i>
+                                        </div>
+                                        <span>呼叫接通率</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">中等</span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">2023-06-15 08:15</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">处理中</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-smooth newhigth1">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-yellow-500/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                            <i class="fa fa-signal text-yellow-500"></i>
+                                        </div>
+                                        <span>数据传输速率</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">轻微</span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">2023-06-14 16:42</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已解决</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-smooth newhigth1">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-orange-500/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                            <i class="fa fa-signal text-orange-500"></i>
+                                        </div>
+                                        <span>基站覆盖率</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">中等</span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">2023-06-14 14:20</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">处理中</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-smooth newhigth1">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-red-500/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                            <i class="fa fa-signal text-red-500"></i>
+                                        </div>
+                                        <span>客户投诉率</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">严重</span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">2023-06-14 10:15</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">待处理</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-smooth newhigth1">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="bg-red-500/10 rounded-full h-8 w-8 flex items-center justify-center mr-3">
+                                            <i class="fa fa-signal text-red-500"></i>
+                                        </div>
+                                        <span>客户投诉率</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">严重</span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm">2023-06-14 10:15</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">待处理</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-soft p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold">区域指标排名</h2>
+                    <a href="indicator_map.html" class="text-primary text-sm font-medium hover:underline">查看地图</a>
+                </div>
+                <div class="space-y-4" style="max-width: 100%;">
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-smooth newhigth">
+                        <div class="flex items-center">
+                            <div class="bg-primary text-white font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3">1</div>
+                            <span class="font-medium">海淀区</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">96.8%</p>
+                            <p class="text-xs text-green-600">+1.2%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-smooth newhigth">
+                        <div class="flex items-center">
+                            <div class="bg-primary/80 text-white font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3">2</div>
+                            <span class="font-medium">朝阳区</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">95.4%</p>
+                            <p class="text-xs text-green-600">+0.8%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-smooth newhigth">
+                        <div class="flex items-center">
+                            <div class="bg-primary/60 text-white font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3">3</div>
+                            <span class="font-medium">西城区</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">94.9%</p>
+                            <p class="text-xs text-green-600">+0.5%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-smooth newhigth">
+                        <div class="flex items-center">
+                            <div class="bg-gray-300 text-gray-700 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3">4</div>
+                            <span class="font-medium">东城区</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">93.2%</p>
+                            <p class="text-xs text-red-600">-0.3%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-smooth newhigth">
+                        <div class="flex items-center">
+                            <div class="bg-gray-300 text-gray-700 font-bold rounded-full h-6 w-6 flex items-center justify-center mr-3">5</div>
+                            <span class="font-medium">丰台区</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg">91.7%</p>
+                            <p class="text-xs text-green-600">+0.2%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 确保页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置画布尺寸
+            const trendContainer = document.querySelector('#trendChart').parentElement;
+            const trendCanvas = document.getElementById('trendChart');
+            const categoryCanvas = document.getElementById('categoryChart');
+            const trendChart = echarts.init(document.getElementById('trendChartEcharts'));
+            const categoryChart = echarts.init(document.getElementById('categoryChartEcharts'));
+
+            const trendOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}<br/>{a}: {c}%'
+                },
+                legend: {
+                    data: ['网络质量']
+                },
+                grid: {
+                    left: '3%',
+                    top: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    // containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#6b7280'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 90,
+                    max: 100,
+                    axisLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#e5e7eb'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#6b7280',
+                        formatter: '{value}%'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#f3f4f6'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '网络质量',
+                        type: 'line',
+                        data: [92, 93, 91, 94, 95, 96, 94],
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#3498db'
+                        },
+                        itemStyle: {
+                            color: '#3498db',
+                            borderWidth: 2
+                        },
+                        symbolSize: 8,
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                    offset: 0,
+                                    color: 'rgba(52, 152, 219, 0.3)'
+                                },
+                                {
+                                    offset: 1,
+                                    color: 'rgba(52, 152, 219, 0.1)'
+                                }
+                            ])
+                        }
+                    }
+                ]
+            };
+
+            trendChart.setOption(trendOption);
+
+
+            const categoryOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 5,  // 改为左侧
+                    top: 20,   // 距离顶部20px
+                    data: ['网络指标', '服务指标', '业务指标', '客户满意度'],
+                    textStyle: {
+                        color: '#6b7280'
+                    }
+                },
+                series: [
+                    {
+                        name: '指标分类',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '18',
+                                fontWeight: 'bold',
+                                formatter: '{b}\n{d}%'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            { value: 35, name: '网络指标', itemStyle: { color: '#3498db' } },
+                            { value: 25, name: '服务指标', itemStyle: { color: '#1abc9c' } },
+                            { value: 20, name: '业务指标', itemStyle: { color: '#9b59b6' } },
+                            { value: 20, name: '客户满意度', itemStyle: { color: '#e74c3c' } }
+                        ]
+                    }
+                ]
+            };
+
+            categoryChart.setOption(categoryOption);
+            if (trendCanvas) {
+                trendCanvas.width = trendContainer.clientWidth;
+                trendCanvas.height = trendContainer.clientHeight;
+            }
+            
+            if (categoryCanvas) {
+                categoryCanvas.width = 300;
+                categoryCanvas.height = 300;
+            }
+            
+            // 服务质量趋势图数据
+            const trendData = {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [
+                    {
+                        label: '网络质量',
+                        data: [92, 93, 91, 94, 95, 96, 94],
+                        backgroundColor: '#3498db',
+                        tension: 0.3
+                    }
+                ]
+            };
+            
+            // 绘制趋势图
+            if (trendCanvas) {
+                // drawSimpleChart('trendChart', 'line', trendData);
+            }
+            
+            // 分类环形图数据
+            const categoryData = {
+                labels: ['网络指标', '服务指标', '业务指标', '客户满意度'],
+                datasets: [{
+                    data: [35, 25, 20, 20],
+                    backgroundColor: [
+                        '#3498db',
+                        '#1abc9c',
+                        '#9b59b6',
+                        '#e74c3c'
+                    ]
+                }]
+            };
+            
+            // 绘制环形图
+            if (categoryCanvas) {
+                drawSimpleChart('categoryChart', 'doughnut', categoryData);
+            }
+        }
+    );
+    </script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反诈大模型 - 预警策略管理</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #3498db;
+            --primary-hover: #2980b9;
+            --secondary-color: #2c3e50;
+            --bg-color: #f4f6f9;
+            --white: #ffffff;
+            --text-color: #333333;
+            --border-radius: 6px;
+            --shadow: 0 2px 5px rgba(0,0,0,0.05);
+            --border: 1px solid #e1e5e9;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+        
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* 导航栏样式 */
+        nav {
+            background-color: var(--white);
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+        
+        .nav-item a {
+            text-decoration: none;
+            color: var(--secondary-color);
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a:hover {
+            background-color: #f0f4f8;
+            color: var(--primary-color);
+        }
+        
+        .nav-item.active a {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* 内容容器样式 */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        /* 章节样式 */
+        .section {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        /* 卡片网格样式 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background-color: var(--white);
+            border: var(--border);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-icon {
+            font-size: 24px;
+        }
+        
+        .card-content {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: var(--border);
+        }
+        
+        .data-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f0f4f8;
+        }
+        
+        /* 图表容器样式 */
+        .chart-container {
+            height: 300px;
+            margin-top: 30px;
+        }
+        
+        /* 统计指标卡片 */
+        .stat-card {
+            background-color: #f8f9fa;
+            border: var(--border);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-name {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* 风险等级指示器 */
+        .risk-level {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .risk-high {
+            background-color: #ffebee;
+            color: #e74c3c;
+        }
+        
+        .risk-medium {
+            background-color: #fff8e1;
+            color: #f39c12;
+        }
+        
+        .risk-low {
+            background-color: #e8f5e9;
+            color: #2ecc71;
+        }
+        
+        /* 预警通道样式 */
+        .channel-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .channel-card {
+            flex: 1;
+            min-width: 250px;
+            background-color: var(--white);
+            border: var(--border);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .channel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .channel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-online {
+            background-color: #2ecc71;
+        }
+        
+        .status-offline {
+            background-color: #e74c3c;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div>
+                <h1 class="header-title">北京市反诈大模型</h1>
+                <p class="header-subtitle">预警策略管理</p>
+            </div>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="反诈大模型总览.html">系统总览</a></li>
+                <li class="nav-item"><a href="多源数据接入.html">多源数据接入</a></li>
+                <li class="nav-item"><a href="关键词配置.html">关键词配置</a></li>
+                <li class="nav-item"><a href="风险评分机制.html">风险评分机制</a></li>
+                <li class="nav-item active"><a href="预警策略管理.html">预警策略管理</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- 模块概览 -->
+        <section class="section">
+            <h2 class="section-title">预警策略管理</h2>
+            <p>本模块具备多级预警策略管理功能，支持根据风险等级配置不同的预警方式和处理流程，确保各类风险事件能够得到及时有效的处理。</p>
+            
+            <!-- 预警统计指标 -->
+            <div class="card-grid">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-name">今日预警总数</div>
+                        <div class="stat-value">186</div>
+                    </div>
+                    <div style="font-size: 48px;">🚨</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-name">高风险预警</div>
+                        <div class="stat-value">42</div>
+                    </div>
+                    <div style="font-size: 48px;">⚠️</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-name">预警处理率</div>
+                        <div class="stat-value">96.7%</div>
+                    </div>
+                    <div style="font-size: 48px;">✅</div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-name">平均响应时间</div>
+                        <div class="stat-value">3.2分钟</div>
+                    </div>
+                    <div style="font-size: 48px;">⏱️</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 预警策略配置 -->
+        <section class="section">
+            <h2 class="section-title">预警策略配置</h2>
+            <p>根据风险等级配置不同的预警策略，包括预警方式、处理流程和响应时间要求。</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">
+                        <span style="font-size: 24px;">🔴</span>
+                        高风险预警策略
+                    </div>
+                    <div class="card-content">
+                        <p><strong>触发条件：</strong>风险评分 ≥ 80分</p>
+                        <p><strong>预警方式：</strong>实时短信+系统弹窗+电话通知</p>
+                        <p><strong>处理要求：</strong>5分钟内响应，30分钟内处理完毕</p>
+                        <p><strong>处理流程：</strong>系统自动阻断 + 人工审核 + 跟进处置</p>
+                        <br>
+                        <button class="btn">编辑策略</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">
+                        <span style="font-size: 24px;">🟡</span>
+                        中风险预警策略
+                    </div>
+                    <div class="card-content">
+                        <p><strong>触发条件：</strong>风险评分 60-79分</p>
+                        <p><strong>预警方式：</strong>实时短信+系统通知</p>
+                        <p><strong>处理要求：</strong>15分钟内响应，2小时内处理完毕</p>
+                        <p><strong>处理流程：</strong>人工审核 + 风险提示 + 记录备案</p>
+                        <br>
+                        <button class="btn">编辑策略</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">
+                        <span style="font-size: 24px;">🟢</span>
+                        低风险预警策略
+                    </div>
+                    <div class="card-content">
+                        <p><strong>触发条件：</strong>风险评分 40-59分</p>
+                        <p><strong>预警方式：</strong>系统通知</p>
+                        <p><strong>处理要求：</strong>1小时内响应，24小时内处理完毕</p>
+                        <p><strong>处理流程：</strong>定期巡检 + 风险监测</p>
+                        <br>
+                        <button class="btn">编辑策略</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 预警通道管理 -->
+        <section class="section">
+            <h2 class="section-title">预警通道管理</h2>
+            <p>支持多种预警通道配置，包括短信、API推送、系统弹窗等，确保预警信息能够及时触达相关人员。</p>
+            
+            <div class="channel-container">
+                <div class="channel-card">
+                    <div class="channel-header">
+                        <div class="channel-title">短信预警</div>
+                        <div class="status-indicator">
+                            <span class="status-dot status-online"></span>
+                            在线
+                        </div>
+                    </div>
+                    <p><strong>配置信息：</strong>北京市反诈中心短信网关</p>
+                    <p><strong>接收人员：</strong>值班人员、管理人员</p>
+                    <p><strong>成功率：</strong>99.8%</p>
+                    <br>
+                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">配置</button>
+                </div>
+                
+                <div class="channel-card">
+                    <div class="channel-header">
+                        <div class="channel-title">API推送</div>
+                        <div class="status-indicator">
+                            <span class="status-dot status-online"></span>
+                            在线
+                        </div>
+                    </div>
+                    <p><strong>配置信息：</strong>JSON格式，HTTPS加密传输</p>
+                    <p><strong>对接系统：</strong>北京市公安局反诈平台</p>
+                    <p><strong>成功率：</strong>99.9%</p>
+                    <br>
+                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">配置</button>
+                </div>
+                
+                <div class="channel-card">
+                    <div class="channel-header">
+                        <div class="channel-title">系统弹窗</div>
+                        <div class="status-indicator">
+                            <span class="status-dot status-online"></span>
+                            在线
+                        </div>
+                    </div>
+                    <p><strong>配置信息：</strong>实时弹窗提醒，支持声音告警</p>
+                    <p><strong>适用终端：</strong>监控中心大屏、值班终端</p>
+                    <p><strong>成功率：</strong>100%</p>
+                    <br>
+                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">配置</button>
+                </div>
+                
+                <div class="channel-card">
+                    <div class="channel-header">
+                        <div class="channel-title">电话通知</div>
+                        <div class="status-indicator">
+                            <span class="status-dot status-online"></span>
+                            在线
+                        </div>
+                    </div>
+                    <p><strong>配置信息：</strong>自动语音播报，支持回拨确认</p>
+                    <p><strong>适用场景：</strong>高风险紧急预警</p>
+                    <p><strong>成功率：</strong>98.5%</p>
+                    <br>
+                    <button class="btn" style="padding: 4px 8px; font-size: 12px;">配置</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 预警事件处理记录 -->
+        <section class="section">
+            <h2 class="section-title">预警事件处理记录</h2>
+            <p>记录所有预警事件的处理情况，包括触发时间、风险等级、处理人员和处理结果等信息。</p>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>预警ID</th>
+                        <th>风险类型</th>
+                        <th>风险等级</th>
+                        <th>触发时间</th>
+                        <th>处理人员</th>
+                        <th>处理状态</th>
+                        <th>处理结果</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AL20240401001</td>
+                        <td>虚假投资理财</td>
+                        <td><span class="risk-level risk-high">高风险</span></td>
+                        <td>2024-04-01 10:23:45</td>
+                        <td>张三</td>
+                        <td>已处理</td>
+                        <td>已阻断，用户已提醒</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>AL20240401002</td>
+                        <td>冒充公检法</td>
+                        <td><span class="risk-level risk-high">高风险</span></td>
+                        <td>2024-04-01 09:15:30</td>
+                        <td>李四</td>
+                        <td>处理中</td>
+                        <td>正在核实</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>AL20240331015</td>
+                        <td>虚假兼职</td>
+                        <td><span class="risk-level risk-medium">中风险</span></td>
+                        <td>2024-03-31 16:45:20</td>
+                        <td>王五</td>
+                        <td>已处理</td>
+                        <td>已标记，用户已提醒</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>AL20240331014</td>
+                        <td>虚假贷款</td>
+                        <td><span class="risk-level risk-high">高风险</span></td>
+                        <td>2024-03-31 14:30:12</td>
+                        <td>赵六</td>
+                        <td>已处理</td>
+                        <td>已阻断，案件已上报</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>AL20240331012</td>
+                        <td>刷单返利</td>
+                        <td><span class="risk-level risk-medium">中风险</span></td>
+                        <td>2024-03-31 11:20:05</td>
+                        <td>钱七</td>
+                        <td>已处理</td>
+                        <td>已标记，用户已提醒</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 12px;">查看详情</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <!-- 预警趋势分析 -->
+        <section class="section">
+            <h2 class="section-title">预警趋势分析</h2>
+            <div class="chart-container">
+                <canvas id="alertTrendChart"></canvas>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // 初始化预警趋势分析图表
+        const ctx = document.getElementById('alertTrendChart').getContext('2d');
+        const alertTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['3月26日', '3月27日', '3月28日', '3月29日', '3月30日', '3月31日', '4月1日'],
+                datasets: [
+                    {
+                        label: '高风险预警',
+                        data: [38, 45, 42, 39, 48, 45, 42],
+                        backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: '中风险预警',
+                        data: [65, 72, 68, 75, 70, 68, 63],
+                        backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                        borderColor: 'rgba(243, 156, 18, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    },
+                    {
+                        label: '低风险预警',
+                        data: [82, 78, 85, 80, 83, 76, 81],
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: '近7天预警趋势分析'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '预警数量'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '日期'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
