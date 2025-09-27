@@ -165,6 +165,7 @@
             padding: 20px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid #e8f4fd;
+            transition: all 0.3s ease;
         }
 
         .dept-header {
@@ -172,6 +173,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            cursor: pointer;
         }
 
         .dept-name {
@@ -183,6 +185,15 @@
         .dept-progress {
             font-size: 16px;
             font-weight: bold;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+            margin-left: 5px;
+        }
+
+        .dept-card.expanded .expand-icon {
+            transform: rotate(180deg);
         }
 
         .progress-bar-container {
@@ -217,6 +228,53 @@
             justify-content: space-between;
             margin-top: 15px;
             font-size: 14px;
+            color: var(--light-text);
+        }
+
+        /* 目标分解样式 */
+        .dept-goal-breakdown {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #e0e0e0;
+            display: none;
+        }
+
+        .dept-card.expanded .dept-goal-breakdown {
+            display: block;
+        }
+
+        .goal-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .goal-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .goal-progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .goal-progress-bar {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .goal-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
             color: var(--light-text);
         }
 
@@ -302,6 +360,163 @@
             color: var(--danger-color);
         }
 
+        /* 设置目标值按钮样式 */
+        .set-goal-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .set-goal-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--light-text);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .nav-menu {
@@ -370,6 +585,7 @@
                     <div class="dept-header">
                         <div class="dept-name">朝阳区</div>
                         <div class="dept-progress" style="color: var(--success-color);">96.5%</div>
+                        <i class="fas fa-chevron-down expand-icon"></i>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar good" style="width: 96.5%;"></div>
@@ -382,6 +598,54 @@
                         <div>排名: 1</div>
                         <div class="status-tag good">优秀</div>
                     </div>
+                    
+                    <!-- 目标分解 -->
+                    <div class="dept-goal-breakdown">
+                        <div class="goal-item">
+                            <div class="goal-name">政策宣传覆盖率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 98%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 95%</div>
+                                <div>完成: 93.1%</div>
+                                <div>进度: 98%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">案件处理效率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 97%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 90%</div>
+                                <div>完成: 87.3%</div>
+                                <div>进度: 97%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">群众满意度</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 95%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 88%</div>
+                                <div>完成: 83.6%</div>
+                                <div>进度: 95%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">数据上报及时性</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 96%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 92%</div>
+                                <div>完成: 88.3%</div>
+                                <div>进度: 96%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 海淀区 -->
@@ -389,6 +653,7 @@
                     <div class="dept-header">
                         <div class="dept-name">海淀区</div>
                         <div class="dept-progress" style="color: var(--success-color);">94.2%</div>
+                        <i class="fas fa-chevron-down expand-icon"></i>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar good" style="width: 94.2%;"></div>
@@ -401,6 +666,43 @@
                         <div>排名: 2</div>
                         <div class="status-tag good">优秀</div>
                     </div>
+                    
+                    <!-- 目标分解 -->
+                    <div class="dept-goal-breakdown">
+                        <div class="goal-item">
+                            <div class="goal-name">政策宣传覆盖率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 95%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 92%</div>
+                                <div>完成: 87.4%</div>
+                                <div>进度: 95%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">案件处理效率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 94%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 91%</div>
+                                <div>完成: 85.5%</div>
+                                <div>进度: 94%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">群众满意度</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 93%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 90%</div>
+                                <div>完成: 83.7%</div>
+                                <div>进度: 93%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 西城区 -->
@@ -408,6 +710,7 @@
                     <div class="dept-header">
                         <div class="dept-name">西城区</div>
                         <div class="dept-progress" style="color: var(--success-color);">92.8%</div>
+                        <i class="fas fa-chevron-down expand-icon"></i>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar good" style="width: 92.8%;"></div>
@@ -420,6 +723,43 @@
                         <div>排名: 3</div>
                         <div class="status-tag good">优秀</div>
                     </div>
+                    
+                    <!-- 目标分解 -->
+                    <div class="dept-goal-breakdown">
+                        <div class="goal-item">
+                            <div class="goal-name">政策宣传覆盖率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 93%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 90%</div>
+                                <div>完成: 83.7%</div>
+                                <div>进度: 93%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">案件处理效率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 92%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 88%</div>
+                                <div>完成: 81.0%</div>
+                                <div>进度: 92%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">系统建设完善度</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 94%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 85%</div>
+                                <div>完成: 79.9%</div>
+                                <div>进度: 94%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 东城区 -->
@@ -427,6 +767,7 @@
                     <div class="dept-header">
                         <div class="dept-name">东城区</div>
                         <div class="dept-progress" style="color: var(--warning-color);">86.7%</div>
+                        <i class="fas fa-chevron-down expand-icon"></i>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar warning" style="width: 86.7%;"></div>
@@ -439,6 +780,43 @@
                         <div>排名: 4</div>
                         <div class="status-tag warning">一般</div>
                     </div>
+                    
+                    <!-- 目标分解 -->
+                    <div class="dept-goal-breakdown">
+                        <div class="goal-item">
+                            <div class="goal-name">政策宣传覆盖率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar good" style="width: 89%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 85%</div>
+                                <div>完成: 75.65%</div>
+                                <div>进度: 89%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">案件处理效率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar warning" style="width: 86%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 83%</div>
+                                <div>完成: 71.38%</div>
+                                <div>进度: 86%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">人员培训完成率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar warning" style="width: 85%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 80%</div>
+                                <div>完成: 68.0%</div>
+                                <div>进度: 85%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 丰台区 -->
@@ -446,6 +824,7 @@
                     <div class="dept-header">
                         <div class="dept-name">丰台区</div>
                         <div class="dept-progress" style="color: var(--danger-color);">78.3%</div>
+                        <i class="fas fa-chevron-down expand-icon"></i>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar danger" style="width: 78.3%;"></div>
@@ -458,6 +837,43 @@
                         <div>排名: 5</div>
                         <div class="status-tag danger">预警</div>
                     </div>
+                    
+                    <!-- 目标分解 -->
+                    <div class="dept-goal-breakdown">
+                        <div class="goal-item">
+                            <div class="goal-name">政策宣传覆盖率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar warning" style="width: 82%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 85%</div>
+                                <div>完成: 69.7%</div>
+                                <div>进度: 82%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">案件处理效率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar danger" style="width: 76%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 82%</div>
+                                <div>完成: 62.32%</div>
+                                <div>进度: 76%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">系统建设完善度</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar danger" style="width: 77%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 78%</div>
+                                <div>完成: 60.06%</div>
+                                <div>进度: 77%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 石景山区 -->
@@ -465,6 +881,7 @@
                     <div class="dept-header">
                         <div class="dept-name">石景山区</div>
                         <div class="dept-progress" style="color: var(--danger-color);">75.6%</div>
+                        <i class="fas fa-chevron-down expand-icon"></i>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar danger" style="width: 75.6%;"></div>
@@ -476,6 +893,43 @@
                     <div class="dept-details">
                         <div>排名: 6</div>
                         <div class="status-tag danger">预警</div>
+                    </div>
+                    
+                    <!-- 目标分解 -->
+                    <div class="dept-goal-breakdown">
+                        <div class="goal-item">
+                            <div class="goal-name">政策宣传覆盖率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar warning" style="width: 79%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 80%</div>
+                                <div>完成: 63.2%</div>
+                                <div>进度: 79%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">案件处理效率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar danger" style="width: 74%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 78%</div>
+                                <div>完成: 57.72%</div>
+                                <div>进度: 74%</div>
+                            </div>
+                        </div>
+                        <div class="goal-item">
+                            <div class="goal-name">人员配备率</div>
+                            <div class="goal-progress-bar-container">
+                                <div class="goal-progress-bar danger" style="width: 74%;"></div>
+                            </div>
+                            <div class="goal-details">
+                                <div>目标: 75%</div>
+                                <div>完成: 55.5%</div>
+                                <div>进度: 74%</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -636,9 +1090,46 @@
         </section>
     </div>
 
+    <!-- 设置目标值模态框 -->
+    <div id="setGoalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">设置目标值</h3>
+                <button id="closeModalBtn" class="close-btn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="deptName">部门名称</label>
+                    <input type="text" id="deptName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="currentGoal">当前目标值</label>
+                    <input type="text" id="currentGoal" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="newGoal">新目标值 (%)</label>
+                    <input type="number" id="newGoal" min="1" max="100" placeholder="请输入1-100之间的数值">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSetGoalBtn" class="btn btn-secondary">取消</button>
+                <button id="confirmSetGoalBtn" class="btn btn-primary">确定</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 初始化图表
+        // 初始化图表和交互
         document.addEventListener('DOMContentLoaded', function() {
+            // 部门卡片展开/折叠功能
+            const deptCards = document.querySelectorAll('.dept-card');
+            deptCards.forEach(card => {
+                const header = card.querySelector('.dept-header');
+                header.addEventListener('click', () => {
+                    card.classList.toggle('expanded');
+                });
+            });
+
             // 进度趋势图
             const progressTrendCtx = document.getElementById('progressTrendChart').getContext('2d');
             const progressTrendChart = new Chart(progressTrendCtx, {
@@ -773,6 +1264,139 @@
                             }
                         }
                     }
+                }
+            });
+
+            // 设置目标值功能实现
+            const modal = document.getElementById('setGoalModal');
+            const deptNameInput = document.getElementById('deptName');
+            const currentGoalInput = document.getElementById('currentGoal');
+            const newGoalInput = document.getElementById('newGoal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelSetGoalBtn = document.getElementById('cancelSetGoalBtn');
+            const confirmSetGoalBtn = document.getElementById('confirmSetGoalBtn');
+
+            // 为每个部门卡片添加设置目标值按钮
+            deptCards.forEach(card => {
+                const deptName = card.querySelector('.dept-name').textContent;
+                const deptDetails = card.querySelector('.dept-details');
+                const setGoalBtn = document.createElement('button');
+                setGoalBtn.className = 'set-goal-btn';
+                setGoalBtn.textContent = '设置目标值';
+                setGoalBtn.dataset.deptName = deptName;
+                
+                // 找到当前目标值
+                const goalText = deptDetails.textContent;
+                const goalMatch = goalText.match(/目标值:\s*([\d.]+%)/);
+                const currentGoal = goalMatch ? goalMatch[1] : '0%';
+                setGoalBtn.dataset.currentGoal = currentGoal;
+                
+                // 找到完成值
+                const completionText = deptDetails.nextElementSibling.textContent;
+                const completionMatch = completionText.match(/完成值:\s*([\d.]+%)/);
+                const completionValue = completionMatch ? completionMatch[1] : '0%';
+                setGoalBtn.dataset.completionValue = completionValue;
+                
+                // 添加到部门卡片
+                card.appendChild(setGoalBtn);
+            });
+
+            // 为所有设置目标值按钮添加点击事件
+            const setGoalBtns = document.querySelectorAll('.set-goal-btn');
+            let currentDeptCard = null;
+            
+            setGoalBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 阻止事件冒泡，避免触发卡片展开
+                    
+                    const deptName = this.dataset.deptName;
+                    const currentGoal = this.dataset.currentGoal;
+                    
+                    deptNameInput.value = deptName;
+                    currentGoalInput.value = currentGoal;
+                    newGoalInput.value = '';
+                    
+                    currentDeptCard = this.closest('.dept-card');
+                    modal.style.display = 'block';
+                });
+            });
+
+            // 关闭模态框
+            function closeModal() {
+                modal.style.display = 'none';
+                currentDeptCard = null;
+                newGoalInput.value = '';
+            }
+
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelSetGoalBtn.addEventListener('click', closeModal);
+
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // 确认设置新目标值
+            confirmSetGoalBtn.addEventListener('click', function() {
+                const newGoalValue = newGoalInput.value.trim();
+                
+                // 验证输入
+                if (!newGoalValue || isNaN(newGoalValue) || newGoalValue < 1 || newGoalValue > 100) {
+                    alert('请输入1-100之间的有效数值');
+                    return;
+                }
+                
+                if (currentDeptCard) {
+                    // 获取完成值
+                    const deptDetails = currentDeptCard.querySelector('.dept-details');
+                    const completionText = deptDetails.nextElementSibling.textContent;
+                    const completionMatch = completionText.match(/完成值:\s*([\d.]+%)/);
+                    const completionValue = completionMatch ? completionMatch[1] : '0%';
+                    
+                    // 计算新的进度
+                    const completionNum = parseFloat(completionValue);
+                    const newGoalNum = parseFloat(newGoalValue);
+                    const newProgress = (completionNum / newGoalNum * 100).toFixed(1);
+                    
+                    // 更新部门卡片显示
+                    deptDetails.textContent = `目标值: ${newGoalValue}%`;
+                    
+                    // 更新进度条和进度文本
+                    const deptProgress = currentDeptCard.querySelector('.dept-progress');
+                    const progressBar = currentDeptCard.querySelector('.progress-bar');
+                    
+                    deptProgress.textContent = `${newProgress}%`;
+                    progressBar.style.width = `${newProgress}%`;
+                    
+                    // 更新进度状态颜色
+                    if (newProgress >= 90) {
+                        progressBar.className = 'progress-bar good';
+                        deptProgress.style.color = 'var(--success-color)';
+                        currentDeptCard.querySelector('.status-tag').className = 'status-tag good';
+                        currentDeptCard.querySelector('.status-tag').textContent = '优秀';
+                    } else if (newProgress >= 80) {
+                        progressBar.className = 'progress-bar warning';
+                        deptProgress.style.color = 'var(--warning-color)';
+                        currentDeptCard.querySelector('.status-tag').className = 'status-tag warning';
+                        currentDeptCard.querySelector('.status-tag').textContent = '一般';
+                    } else {
+                        progressBar.className = 'progress-bar danger';
+                        deptProgress.style.color = 'var(--danger-color)';
+                        currentDeptCard.querySelector('.status-tag').className = 'status-tag danger';
+                        currentDeptCard.querySelector('.status-tag').textContent = '预警';
+                    }
+                    
+                    // 更新设置按钮的数据
+                    const setGoalBtn = currentDeptCard.querySelector('.set-goal-btn');
+                    setGoalBtn.dataset.currentGoal = `${newGoalValue}%`;
+                    
+                    // 关闭模态框
+                    closeModal();
+                    
+                    // 显示成功提示
+                    alert(`${deptNameInput.value}的目标值已更新为${newGoalValue}%`);
                 }
             });
         });
